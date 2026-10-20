@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #080B14;
+    --bg-secondary: #101625;
+    --bg-tertiary: #172036;
+    --text-primary: #F4F7FF;
+    --text-secondary: #A2ADC2;
+    --text-muted: #64748B;
+    --border-color: #1E293B;
+    --cyan: #4DEBFF;
+    --blue: #6485FF;
+    --violet: #A78BFA;
+    --success: #54F2A8;
+    --warning: #FFC66D;
+    --danger: #FF647C;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #080B14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Subtle glow utilities */
+.glow-cyan {
+  box-shadow: 0 0 25px -4px rgba(77, 235, 255, 0.45);
+}
+.glow-blue {
+  box-shadow: 0 0 25px -4px rgba(100, 133, 255, 0.45);
+}
+.glow-violet {
+  box-shadow: 0 0 25px -4px rgba(167, 139, 250, 0.45);
+}
+.glow-danger {
+  box-shadow: 0 0 25px -4px rgba(255, 100, 124, 0.45);
+}
+.glow-success {
+  box-shadow: 0 0 25px -4px rgba(84, 242, 168, 0.45);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 16px rgba(77, 235, 255, 0.6);
+}
+
+/* Grid background pattern */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.bg-dots-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Eye-Catchy Keyframe Animations */
+@keyframes laserDash {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 24px rgba(168, 85, 247, 0.9));
+  }
+}
+
+@keyframes laserClash {
+  0%, 100% {
+    stroke-width: 3.5px;
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
+  }
+  50% {
+    stroke-width: 5.5px;
+    filter: drop-shadow(0 0 18px rgba(239, 68, 68, 1));
+  }
+}
+
+@keyframes shimmerGlow {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-laser-dash {
+  animation: laserDash 1.2s linear infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 3.5s ease-in-out infinite;
+}
+
+.animate-neon-pulse {
+  animation: neonPulse 2.5s ease-in-out infinite;
+}
+
+.animate-laser-clash {
+  animation: laserClash 1s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmerGlow 2.5s infinite;
+}
+
