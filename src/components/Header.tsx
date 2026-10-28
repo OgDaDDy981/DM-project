@@ -65,24 +65,32 @@ export const Header: React.FC<HeaderProps> = ({
         </a>
 
         {/* Navigation links */}
-        <nav className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+        <nav className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
           <a
             href="#simulation"
-            className={`px-4 py-2 rounded-xl transition-all hover:text-cyan-400 flex items-center gap-2 ${
-              activeSection === 'simulation' ? 'bg-cyan-500/15 text-cyan-400 font-extrabold shadow-sm' : ''
+            className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
+              activeSection === 'simulation'
+                ? isDark
+                  ? 'bg-cyan-500/15 text-cyan-400 font-extrabold border border-cyan-500/30 shadow-sm'
+                  : 'bg-cyan-100 text-cyan-900 font-extrabold border border-cyan-300 shadow-sm'
+                : 'hover:text-cyan-600 dark:hover:text-cyan-400'
             }`}
           >
-            <Cpu className="w-4 h-4 text-cyan-400" />
+            <Cpu className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             <span>Compiler & Silicon Simulation</span>
           </a>
 
           <a
             href="#challenge"
-            className={`px-4 py-2 rounded-xl transition-all hover:text-amber-500 flex items-center gap-2 ${
-              activeSection === 'challenge' ? 'bg-amber-500/15 text-amber-500 font-extrabold shadow-sm' : ''
+            className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
+              activeSection === 'challenge'
+                ? isDark
+                  ? 'bg-amber-500/15 text-amber-400 font-extrabold border border-amber-500/30 shadow-sm'
+                  : 'bg-amber-100 text-amber-900 font-extrabold border border-amber-300 shadow-sm'
+                : 'hover:text-amber-600 dark:hover:text-amber-400'
             }`}
           >
-            <Trophy className="w-4 h-4 text-amber-500" />
+            <Trophy className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span>Register Arcade</span>
           </a>
         </nav>

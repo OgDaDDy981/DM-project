@@ -459,22 +459,25 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({
                 );
               })}
             </svg>
+          </div>
 
-            {/* Bottom HUD Instruction Ribbon */}
-            <div
-              className={`absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs font-mono font-bold px-4 py-2.5 rounded-2xl border shadow-md backdrop-blur-md ${
-                isDark ? 'bg-slate-900/90 text-slate-200 border-slate-700' : 'bg-white/90 text-slate-800 border-slate-200'
-              }`}
-            >
+          {/* Clean Instruction Ribbon - Outside SVG Canvas (Zero Overlaps!) */}
+          <div
+            className={`flex flex-wrap items-center justify-between text-xs font-mono font-bold px-4 py-3 rounded-2xl border shadow-sm ${
+              isDark ? 'bg-slate-900/90 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-200'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
               <span>
                 {selectedNodeId
                   ? `Selected: "${selectedNodeId}". Choose an available pocket below!`
                   : 'Click any circle above to select and color it.'}
               </span>
-              <span className="text-cyan-400">
-                Colored: {totalAssigned} / {currentLevel.nodes.length}
-              </span>
-            </div>
+            </span>
+            <span className="text-cyan-700 dark:text-cyan-400 font-black">
+              Colored: {totalAssigned} / {currentLevel.nodes.length} Variables
+            </span>
           </div>
 
           {/* Register Color Picker Palette */}

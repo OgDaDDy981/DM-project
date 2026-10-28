@@ -229,11 +229,11 @@ export const CHALLENGE_LEVELS: ChallengeLevel[] = [
     solutionExplanation:
       'The triangle (A-B-E) forces all 3 distinct colors. Then C can safely reuse A\'s color because it doesn\'t touch A, and D can reuse B\'s color!',
     nodes: [
-      { id: 'A', label: 'A', friendlyName: 'Adam', icon: '🦊', x: 260, y: 80 },
-      { id: 'B', label: 'B', friendlyName: 'Bella', icon: '🐰', x: 400, y: 170 },
-      { id: 'C', label: 'C', friendlyName: 'Chloe', icon: '🐼', x: 350, y: 320 },
-      { id: 'D', label: 'D', friendlyName: 'David', icon: '🦁', x: 170, y: 320 },
-      { id: 'E', label: 'E', friendlyName: 'Emma', icon: '🦄', x: 120, y: 170 },
+      { id: 'A', label: 'A', friendlyName: 'Adam', icon: '🦊', x: 270, y: 65 },
+      { id: 'B', label: 'B', friendlyName: 'Bella', icon: '🐰', x: 400, y: 150 },
+      { id: 'C', label: 'C', friendlyName: 'Chloe', icon: '🐼', x: 350, y: 255 },
+      { id: 'D', label: 'D', friendlyName: 'David', icon: '🦁', x: 190, y: 255 },
+      { id: 'E', label: 'E', friendlyName: 'Emma', icon: '🦄', x: 140, y: 150 },
     ],
     edges: [
       { id: 'c2-ab', source: 'A', target: 'B' },

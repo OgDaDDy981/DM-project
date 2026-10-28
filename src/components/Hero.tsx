@@ -303,22 +303,22 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Scientific Telemetry Ribbon */}
               <div className="grid grid-cols-4 gap-2 py-2.5 border-b border-slate-200 dark:border-slate-800/80 text-center font-mono">
                 <div className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                  <div className="text-[9px] text-slate-400 uppercase font-bold">Variables |V|</div>
-                  <div className="text-xs font-black text-cyan-400">4 Nodes</div>
+                  <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold">Variables |V|</div>
+                  <div className="text-xs font-black text-cyan-700 dark:text-cyan-400">4 Nodes</div>
                 </div>
                 <div className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                  <div className="text-[9px] text-slate-400 uppercase font-bold">Clashes |E|</div>
-                  <div className={`text-xs font-black ${heroState >= 1 ? 'text-red-400' : 'text-slate-400'}`}>
+                  <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold">Clashes |E|</div>
+                  <div className={`text-xs font-black ${heroState >= 1 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {heroState === 0 ? 'Scanning...' : '3 Edges'}
                   </div>
                 </div>
                 <div className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                  <div className="text-[9px] text-slate-400 uppercase font-bold">Chromatic χ</div>
-                  <div className="text-xs font-black text-purple-400">χ(G) = 3</div>
+                  <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold">Chromatic χ</div>
+                  <div className="text-xs font-black text-purple-700 dark:text-purple-400">χ(G) = 3</div>
                 </div>
                 <div className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                  <div className="text-[9px] text-slate-400 uppercase font-bold">Spill Delay</div>
-                  <div className="text-xs font-black text-emerald-400">0.0 ns (0%)</div>
+                  <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold">Spill Delay</div>
+                  <div className="text-xs font-black text-emerald-700 dark:text-emerald-400">0.0 ns (0%)</div>
                 </div>
               </div>
 
@@ -511,43 +511,45 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Status explanation pill & inspector */}
               <div className="mt-2 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs font-mono">
                 {activeNodeObj ? (
-                  <div className="flex items-center justify-between text-cyan-400 bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/30">
+                  <div className={`flex items-center justify-between p-2.5 rounded-xl border ${
+                    isDark ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' : 'text-cyan-950 bg-cyan-100 border-cyan-300'
+                  }`}>
                     <span className="font-bold flex items-center gap-1.5">
                       <span>{activeNodeObj.icon}</span>
                       <span>{activeNodeObj.name}</span>
-                      <span className="text-slate-400">({activeNodeObj.timing})</span>
+                      <span className="text-slate-500 dark:text-slate-400">({activeNodeObj.timing})</span>
                     </span>
-                    <span className="font-black text-emerald-400">
+                    <span className="font-black text-emerald-600 dark:text-emerald-400">
                       {heroState === 2 ? `Allocated to ${activeNodeObj.pocket}` : 'Waiting for Color'}
                     </span>
                   </div>
                 ) : (
                   <>
                     {heroState === 0 && (
-                      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                         <span className="flex items-center gap-1.5">
-                          <Activity className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                          <Activity className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 animate-pulse" />
                           <span>4 software variables initialized. Click any node to inspect.</span>
                         </span>
-                        <span className="font-bold text-cyan-500">Click "Find Clashes ⚡"</span>
+                        <span className="font-bold text-cyan-700 dark:text-cyan-400">Click "Find Clashes ⚡"</span>
                       </div>
                     )}
                     {heroState === 1 && (
-                      <div className="flex items-center justify-between text-red-400 font-bold">
+                      <div className="flex items-center justify-between text-red-600 dark:text-red-400 font-bold">
                         <span className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
                           <span>Red clash lasers = Variables alive at the exact same moment!</span>
                         </span>
-                        <span className="text-amber-400 font-black">Needs 3 distinct colors</span>
+                        <span className="text-amber-600 dark:text-amber-400 font-black">Needs 3 distinct colors</span>
                       </div>
                     )}
                     {heroState === 2 && (
-                      <div className="flex items-center justify-between text-emerald-400 font-bold">
+                      <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 font-bold">
                         <span className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           <span>Pockets locked: Coins & Shield safely share Pocket R2!</span>
                         </span>
-                        <span className="text-cyan-400">100% In-Register Speed 🚀</span>
+                        <span className="text-cyan-700 dark:text-cyan-400 font-black">100% In-Register Speed 🚀</span>
                       </div>
                     )}
                   </>
