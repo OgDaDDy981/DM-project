@@ -17,15 +17,15 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   const keyTakeaways = [
-    { num: '01', title: 'What is a Variable?', text: 'Human names for calculations (Health, Coins, Scores).' },
-    { num: '02', title: 'What are CPU Registers?', text: 'Ultra-fast memory pockets built directly on the CPU chip (0.3 nanoseconds speed).' },
-    { num: '03', title: 'Why Are They Limited?', text: 'Physical silicon area and heat restrict chips to only 8–32 fast hardware pockets.' },
-    { num: '04', title: 'Why Do Variables Clash?', text: 'Variables active at the exact same moment cannot share a pocket or they destroy each other.' },
-    { num: '05', title: 'The Clash Map (Graph)', text: 'Every variable is a dot; every simultaneous conflict is a laser line.' },
-    { num: '06', title: 'Graph Coloring Solution', text: 'Color every dot so touching dots have different colors. Each color is a physical register!' },
-    { num: '07', title: 'The Chromatic Number χ(G)', text: 'The absolute minimum number of colors mathematically required by the code.' },
-    { num: '08', title: 'Memory Spilling', text: 'If variables exceed pockets, excess items are evicted to slow RAM (200× slower).' },
-    { num: '09', title: 'Real-World Superpower', text: 'Powers every iPhone, Android, game engine, and web browser on Earth!' },
+    { num: '01', title: 'What is a Variable?', text: 'Named values in program calculations (e.g., a, b, c, sum, result).' },
+    { num: '02', title: 'What are CPU Registers?', text: 'Ultra-fast memory cells built directly on the CPU compute pipeline (0.3 nanoseconds speed).' },
+    { num: '03', title: 'Why Are They Limited?', text: 'Physical silicon area, wiring delay, and heat restrict chips to a small fixed register file (e.g. 16–32 registers).' },
+    { num: '04', title: 'Why Do Variables Clash?', text: 'Variables active at the exact same line of code cannot share a physical register or data is destroyed.' },
+    { num: '05', title: 'The Interference Graph', text: 'Every variable is a Vertex; every simultaneous conflict is an Edge.' },
+    { num: '06', title: 'Graph Coloring Solution', text: 'Color every node so adjacent nodes have distinct colors. Each color corresponds to a hardware register!' },
+    { num: '07', title: 'The Chromatic Number χ(G)', text: 'The absolute minimum number of registers mathematically required to run with zero memory stalls.' },
+    { num: '08', title: 'Memory Spilling', text: 'When hardware registers k < χ(G), excess variables are evicted to slow RAM (200× slower).' },
+    { num: '09', title: 'Real-World Superpower', text: 'Powers every compiler on Earth (GCC, Clang/LLVM, Rust, Go, V8, Swift)!' },
   ];
 
   return (
@@ -40,10 +40,10 @@ export const Footer: React.FC<FooterProps> = ({
         }`}>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-500 text-xs font-mono font-bold uppercase mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isStoryMode ? 'How To Explain This To Anyone In 10 Seconds' : 'Executive Architectural Summary'}</span>
+            <span>{isStoryMode ? 'How To Explain This In 10 Seconds' : 'Executive Architectural Summary'}</span>
           </div>
           <p className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-relaxed">
-            "Your phone has 100 game stats, but only 3 memory pockets. By coloring a conflict map so no two clashing items share a pocket, your phone runs at lightning speed with zero slowdown!"
+            "Your program defines dozens of variables, but the CPU has only a few hardware registers. By coloring an interference graph so simultaneously active variables never share a register, your computer executes at full 0.3ns speed with zero memory stalls!"
           </p>
         </div>
 

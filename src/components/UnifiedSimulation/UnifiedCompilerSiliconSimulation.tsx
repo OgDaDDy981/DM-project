@@ -28,173 +28,168 @@ interface UnifiedSimulationProps {
 
 export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> = ({
   isDark = true,
-  isStoryMode = true,
+  isStoryMode: _isStoryMode = true,
 }) => {
   // Master execution line: 1 to 6
   const [currentLine, setCurrentLine] = useState<number>(3);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1800); // ms per step
   
-  // Hardware Register Budget: 3 (Optimal, 0 Spills) or 2 (Constrained, Spills to RAM)
-  const [registerBudget, setRegisterBudget] = useState<number>(3);
+  // Hardware Register Budget: 2 (Optimal Fit χ(G)=2, 0 Spills) or 1 (Constrained, Spills to RAM)
+  const [registerBudget, setRegisterBudget] = useState<number>(2);
 
   // Active Deep Dive Tab: 'simulation' | 'compiler-math' | 'memory-speed'
   const [activeTab, setActiveTab] = useState<'simulation' | 'compiler-math' | 'memory-speed'>('simulation');
 
   // Selected variable for inspector
-  const [selectedVarId, setSelectedVarId] = useState<string>('coins');
+  const [selectedVarId, setSelectedVarId] = useState<string>('c');
 
-  // Pulse key for re-triggering microarchitecture animations
+  // Pulse key for microarchitecture animations
   const [pulseKey, setPulseKey] = useState<number>(0);
 
-  // Program variables definition with complete compiler & silicon metadata
+  // 5 Clean program variables with compiler & silicon metadata
   const variables = [
     {
-      id: 'health',
-      name: 'health',
-      friendlyName: 'Health',
-      icon: '❤️',
+      id: 'a',
+      name: 'var a',
+      friendlyName: 'Operand A',
       start: 1,
       end: 5,
-      regK3: 'R1',
       regK2: 'R1',
-      valAtEnd: '100',
-      hexVal: '0x0064',
+      regK1: 'R1',
+      valAtEnd: '10',
+      hexVal: '0x000A',
       color: '#06B6D4', // Cyan
-      desc: 'Player vitality. Created at Line 1, read continuously until Line 5.',
-      assembly: 'mov r1, 100',
+      desc: 'Base operand. Created at Line 1, read until Line 5. Holds R1.',
+      assembly: 'mov r1, 10',
     },
     {
-      id: 'coins',
-      name: 'coins',
-      friendlyName: 'Coins',
-      icon: '🪙',
+      id: 'b',
+      name: 'var b',
+      friendlyName: 'Operand B',
       start: 2,
       end: 3,
-      regK3: 'R2',
       regK2: 'R2',
-      valAtEnd: '50',
-      hexVal: '0x0032',
+      regK1: 'RAM [rbp-8]',
+      valAtEnd: '20',
+      hexVal: '0x0014',
       color: '#8B5CF6', // Purple
-      desc: 'Coin count. Created at Line 2, consumed to calculate score at Line 3. Dead after Line 3!',
-      assembly: 'mov r2, 50',
+      desc: 'Second operand. Created at Line 2, consumed at Line 3. Dead after Line 3!',
+      assembly: 'mov r2, 20',
     },
     {
-      id: 'score',
-      name: 'score',
-      friendlyName: 'Score',
-      icon: '🎯',
+      id: 'c',
+      name: 'var c',
+      friendlyName: 'Sum C',
       start: 3,
       end: 4,
-      regK3: 'R3',
-      regK2: 'R2', // in k=2, reused immediately from dead coins
-      valAtEnd: '150',
-      hexVal: '0x0096',
-      color: '#10B981', // Lime / Emerald
-      desc: 'Player score = health + coins. Created at Line 3, consumed at Line 4. Dead after Line 4!',
-      assembly: 'add r3, r1, r2',
+      regK2: 'R2', // REUSES R2 since b died!
+      regK1: 'RAM [rbp-8]',
+      valAtEnd: '30',
+      hexVal: '0x001E',
+      color: '#8B5CF6', // Purple (Reuses R2!)
+      desc: 'Intermediate sum = a + b. Safely reuses Register R2 because b is dead!',
+      assembly: 'add r2, r1, r2',
     },
     {
-      id: 'shield',
-      name: 'shield',
-      friendlyName: 'Shield',
-      icon: '🛡️',
+      id: 'd',
+      name: 'var d',
+      friendlyName: 'Scaled D',
       start: 4,
-      end: 6,
-      regK3: 'R2', // REUSES R2 since coins is dead!
-      regK2: 'RAM [rbp-8]', // SPILLED in k=2!
-      valAtEnd: '300',
-      hexVal: '0x012C',
-      color: '#8B5CF6', // Reuses R2 color in k=3, or Red in k=2
-      desc: 'Shield = score * 2. In k=3, reuses R2! In k=2, forced to spill to RAM stack!',
-      assembly: 'shl r2, r3, 1',
+      end: 5,
+      regK2: 'R2', // REUSES R2 since c died!
+      regK1: 'RAM [rbp-8]',
+      valAtEnd: '60',
+      hexVal: '0x003C',
+      color: '#8B5CF6', // Purple (Reuses R2!)
+      desc: 'Scaled product = c * 2. Safely reuses Register R2 because c is dead!',
+      assembly: 'shl r2, 1',
     },
     {
-      id: 'speed',
-      name: 'speed',
-      friendlyName: 'Speed',
-      icon: '⚡',
+      id: 'e',
+      name: 'var e',
+      friendlyName: 'Result E',
       start: 5,
       end: 6,
-      regK3: 'R3', // REUSES R3 since score is dead!
-      regK2: 'R2',
-      valAtEnd: '110',
-      hexVal: '0x006E',
-      color: '#10B981', // Reuses R3 color
-      desc: 'Speed = health + 10. Reuses R3 since score is dead!',
-      assembly: 'add r3, r1, 10',
+      regK2: 'R1', // REUSES R1 since a died!
+      regK1: 'R1',
+      valAtEnd: '70',
+      hexVal: '0x0046',
+      color: '#06B6D4', // Cyan (Reuses R1!)
+      desc: 'Final result = d + a. Both a and d finish here. Safely reuses Register R1!',
+      assembly: 'add r1, r2, r1',
     },
   ];
 
-  // 6 lines of code with detailed pedagogical and execution metadata
+  // 6 lines of code with detailed compiler metadata
   const codeLines = [
     {
       line: 1,
-      code: 'health = 100;',
-      asm: 'mov r1, 100',
-      varsBorn: ['health'],
+      code: 'a = 10;',
+      asm: 'mov r1, 10',
+      varsBorn: ['a'],
       varsDying: [],
-      activeVars: ['health'],
-      desc: 'Player health initialized to 100. Stored in Hardware Register R1.',
+      activeVars: ['a'],
+      desc: 'Variable a initialized to 10. Stored directly in Hardware Register R1.',
       event: 'birth',
-      aluOp: 'LOAD CONSTANT 100',
+      aluOp: 'LOAD CONSTANT 10',
     },
     {
       line: 2,
-      code: 'coins = 50;',
-      asm: 'mov r2, 50',
-      varsBorn: ['coins'],
+      code: 'b = 20;',
+      asm: registerBudget === 2 ? 'mov r2, 20' : 'mov [rbp-8], 20 ; SPILLED TO RAM!',
+      varsBorn: ['b'],
       varsDying: [],
-      activeVars: ['health', 'coins'],
-      desc: '50 coins collected. Both health & coins are alive in R1 and R2. Zero clashes yet!',
-      event: 'birth',
-      aluOp: 'LOAD CONSTANT 50',
+      activeVars: ['a', 'b'],
+      desc: registerBudget === 2
+        ? 'Variable b initialized to 20. Stored in Hardware Register R2. Both a and b fit perfectly!'
+        : '🚨 HARDWARE EXHAUSTED: Only 1 register available! Variable b must spill to slow RAM.',
+      event: registerBudget === 2 ? 'birth' : 'spill',
+      aluOp: registerBudget === 2 ? 'LOAD CONSTANT 20' : 'BUS SPILL: STORE [rbp-8]',
     },
     {
       line: 3,
-      code: 'score = health + coins;',
-      asm: 'add r3, r1, r2',
-      varsBorn: ['score'],
-      varsDying: ['coins'],
-      activeVars: ['health', 'coins', 'score'],
-      desc: 'ALU computes 100 + 50 = 150 into R3. Coins is read for the last time — COINS DIES HERE! Register R2 is freed!',
+      code: 'c = a + b;',
+      asm: registerBudget === 2 ? 'add r2, r1, r2 ; b dies, c reuses R2!' : 'add r1, [rbp-8] ; RAM Stall (+200 cycles)',
+      varsBorn: ['c'],
+      varsDying: ['b'],
+      activeVars: ['a', 'c'],
+      desc: 'ALU computes 10 + 20 = 30. Variable b is consumed for the last time (b DIES!). Variable c immediately takes over Register R2 with 0 latency!',
       event: 'handoff',
-      aluOp: 'ALU ADD: 100 + 50 = 150',
+      aluOp: 'ALU ADD: 10 + 20 = 30',
     },
     {
       line: 4,
-      code: 'shield = score * 2;',
-      asm: registerBudget === 3 ? 'shl r2, r3, 1  ; Reuses R2!' : 'mov [rbp-8], r2 ; SPILLED TO RAM!',
-      varsBorn: ['shield'],
-      varsDying: ['score'],
-      activeVars: ['health', 'score', 'shield'],
-      desc: registerBudget === 3
-        ? '⚡ ZERO-STALL RECYCLE: Coins is dead, so Shield takes over Register R2 without waiting! Score dies here.'
-        : '🚨 SPILL DISASTER! With only 2 registers, Shield cannot fit in silicon! Evicted to slow RAM stack [rbp-8]!',
-      event: registerBudget === 3 ? 'handoff' : 'spill',
-      aluOp: registerBudget === 3 ? 'ALU SHIFT: 150 * 2 = 300' : 'BUS SPILL: STORE [rbp-8]',
+      code: 'd = c * 2;',
+      asm: registerBudget === 2 ? 'shl r2, 1       ; c dies, d reuses R2!' : 'shl r1, 1',
+      varsBorn: ['d'],
+      varsDying: ['c'],
+      activeVars: ['a', 'd'],
+      desc: 'ALU shifts 30 * 2 = 60. Variable c is consumed for the last time (c DIES!). Variable d immediately takes over Register R2!',
+      event: 'handoff',
+      aluOp: 'ALU SHL: 30 * 2 = 60',
     },
     {
       line: 5,
-      code: 'speed = health + 10;',
-      asm: 'add r3, r1, 10  ; Reuses R3!',
-      varsBorn: ['speed'],
-      varsDying: ['health'],
-      activeVars: ['health', 'shield', 'speed'],
-      desc: '⚡ ZERO-STALL RECYCLE: Health read for the last time (Health dies!). Speed takes over Register R3!',
+      code: 'e = d + a;',
+      asm: 'add r1, r2, r1 ; a & d die, e reuses R1!',
+      varsBorn: ['e'],
+      varsDying: ['a', 'd'],
+      activeVars: ['e'],
+      desc: 'Final sum computed. Both a and d finish their lifespans (both DIE!). Variable e takes over Register R1!',
       event: 'handoff',
-      aluOp: 'ALU ADD: 100 + 10 = 110',
+      aluOp: 'ALU ADD: 60 + 10 = 70',
     },
     {
       line: 6,
-      code: 'return shield + speed;',
-      asm: registerBudget === 3 ? 'add r0, r2, r3  ; In-register' : 'mov r1, [rbp-8]; 200-cycle RAM stall!\nadd r0, r1, r2',
+      code: 'return e;',
+      asm: 'ret r1         ; Return result from R1',
       varsBorn: [],
-      varsDying: ['shield', 'speed'],
-      activeVars: ['shield', 'speed'],
-      desc: 'Final game frame rendered! Shield (300) + Speed (110) = 410. Execution complete!',
+      varsDying: ['e'],
+      activeVars: ['e'],
+      desc: 'Program return. Final value 70 successfully produced from Register R1. 100% in-register throughput!',
       event: 'finish',
-      aluOp: 'ALU ADD: 300 + 110 = 410',
+      aluOp: 'RETURN VALUE 70',
     },
   ];
 
@@ -214,7 +209,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
           }
           const next = prev + 1;
           setPulseKey((k) => k + 1);
-          if (next === 4 && registerBudget === 2) {
+          if (next === 2 && registerBudget === 1) {
             sounds.playSpill();
           } else if (next === 3 || next === 4 || next === 5) {
             sounds.playHandoff();
@@ -236,7 +231,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
       const next = currentLine + 1;
       setCurrentLine(next);
       setPulseKey((k) => k + 1);
-      if (next === 4 && registerBudget === 2) {
+      if (next === 2 && registerBudget === 1) {
         sounds.playSpill();
       } else if (next === 3 || next === 4 || next === 5) {
         sounds.playHandoff();
@@ -273,29 +268,26 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
   // Graph Nodes & Edges (spacious 500x320 coordinate system with 100% zero overlap)
   const graphNodes = [
-    { id: 'health', name: 'Health', icon: '❤️', x: 250, y: 65, deg: 3, reg: 'R1', color: '#06B6D4' },
-    { id: 'coins', name: 'Coins', icon: '🪙', x: 95, y: 155, deg: 2, reg: 'R2', color: '#8B5CF6' },
-    { id: 'score', name: 'Score', icon: '🎯', x: 165, y: 255, deg: 3, reg: 'R3', color: '#10B981' },
-    { id: 'shield', name: 'Shield', icon: '🛡️', x: 335, y: 255, deg: 3, reg: registerBudget === 3 ? 'R2' : 'RAM', color: registerBudget === 3 ? '#8B5CF6' : '#EF4444' },
-    { id: 'speed', name: 'Speed', icon: '⚡', x: 405, y: 155, deg: 1, reg: 'R3', color: '#10B981' },
+    { id: 'a', name: 'var a', x: 250, y: 70, reg: 'R1', color: '#06B6D4' },
+    { id: 'b', name: 'var b', x: 100, y: 160, reg: registerBudget === 2 ? 'R2' : 'RAM', color: registerBudget === 2 ? '#8B5CF6' : '#EF4444' },
+    { id: 'c', name: 'var c', x: 150, y: 260, reg: registerBudget === 2 ? 'R2' : 'RAM', color: registerBudget === 2 ? '#8B5CF6' : '#EF4444' },
+    { id: 'd', name: 'var d', x: 350, y: 260, reg: registerBudget === 2 ? 'R2' : 'RAM', color: registerBudget === 2 ? '#8B5CF6' : '#EF4444' },
+    { id: 'e', name: 'var e', x: 400, y: 160, reg: 'R1', color: '#06B6D4' },
   ];
 
   const graphEdges = [
-    { u: 'health', v: 'coins', activeLines: [2] },
-    { u: 'coins', v: 'score', activeLines: [3] },
-    { u: 'health', v: 'score', activeLines: [3] },
-    { u: 'health', v: 'shield', activeLines: [4, 5] },
-    { u: 'score', v: 'shield', activeLines: [4] },
-    { u: 'shield', v: 'speed', activeLines: [5, 6] },
+    { u: 'a', v: 'b', activeLines: [2] },
+    { u: 'a', v: 'c', activeLines: [3] },
+    { u: 'a', v: 'd', activeLines: [4] },
   ];
 
   // Cycle & Latency calculation
-  const isSpilledNow = registerBudget === 2 && currentLine >= 4;
-  const totalCycles = registerBudget === 3 ? currentLine : (currentLine >= 4 ? currentLine + 200 : currentLine);
-  const totalLatencyNs = registerBudget === 3 ? (currentLine * 0.3).toFixed(1) : (currentLine >= 4 ? (60.0 + currentLine * 0.3).toFixed(1) : (currentLine * 0.3).toFixed(1));
+  const isSpilledNow = registerBudget === 1 && currentLine >= 2;
+  const totalCycles = registerBudget === 2 ? currentLine : currentLine + 200;
+  const totalLatencyNs = registerBudget === 2 ? (currentLine * 0.3).toFixed(1) : (60.0 + currentLine * 0.3).toFixed(1);
 
   return (
-    <section id="simulation" className={`py-12 md:py-20 border-b transition-colors duration-300 ${
+    <section id="compiler-silicon" className={`py-12 md:py-20 border-b transition-colors duration-300 ${
       isDark ? 'bg-[#080B14] border-slate-800 text-white' : 'bg-[#F8FAFC] border-slate-200 text-slate-900'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -303,23 +295,23 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
         {/* 1. Header Banner */}
         <div className="text-center max-w-4xl mx-auto space-y-3">
           <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider shadow-sm border ${
-            isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300 font-extrabold'
+            isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-950 border-emerald-300 font-extrabold'
           }`}>
-            <Zap className="w-4 h-4 text-cyan-600 dark:text-cyan-400 animate-pulse" />
-            <span>{isStoryMode ? 'The Interactive Compiler & Silicon Studio' : 'Live Microarchitecture & Interference Graph Coloring Simulation'}</span>
+            <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+            <span>Stage 3: The Compiled Machine Execution & Physical Silicon</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight">
-            {isStoryMode ? 'Watch Code Turn Into ' : 'From Symbolic Code to '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 dark:from-cyan-400 dark:via-purple-500 dark:to-pink-500">
-              {isStoryMode ? 'Lightning Fast Silicon' : 'Physical CPU Hardware Registers'}
+            From Graph Colors to{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-purple-600 to-emerald-600 dark:from-cyan-400 dark:via-purple-500 dark:to-emerald-400">
+              Physical CPU Silicon
             </span>
           </h2>
 
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto font-medium">
-            {isStoryMode
-              ? 'Variables alive at the same moment clash and need different pockets. Variables alive at different moments share pockets for free! Watch the data packets flow from code lines directly into CPU registers.'
-              : 'End-to-end execution pipeline: Symbolic AST → Liveness interval analysis → Interference graph coloring → Physical register allocation → Memory spilling and pipeline stall penalties.'}
+            Watch how the compiler transforms the graph coloring solution into real machine instructions.
+            Because <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-purple-600 dark:text-purple-400 font-mono font-bold">b, c, d</code> share Color 2,
+            they sequentially reuse <strong>Register R2</strong> with zero memory stalls!
           </p>
         </div>
 
@@ -339,7 +331,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 className="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg shadow-cyan-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer"
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-                <span>{isPlaying ? 'Pause' : 'Auto Play Simulation'}</span>
+                <span>{isPlaying ? 'Pause' : 'Auto Play Silicon'}</span>
               </button>
 
               <div className={`flex items-center gap-1 p-1 rounded-2xl border ${
@@ -348,35 +340,43 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <button
                   onClick={handleStepBack}
                   disabled={currentLine <= 1}
-                  className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                  title="Step Backward"
+                  className={`p-2 rounded-xl transition-all cursor-pointer ${
+                    currentLine <= 1
+                      ? 'text-slate-400 opacity-40 cursor-not-allowed'
+                      : isDark
+                      ? 'text-slate-300 hover:text-white hover:bg-slate-700'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-200'
+                  }`}
+                  title="Previous Line"
                 >
                   <SkipBack className="w-4 h-4" />
                 </button>
 
-                <span className="px-3 text-xs font-mono font-black text-cyan-700 dark:text-cyan-400">
-                  Line {currentLine} / 6
-                </span>
-
                 <button
                   onClick={handleStepForward}
                   disabled={currentLine >= 6}
-                  className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                  title="Step Forward"
+                  className={`p-2 rounded-xl transition-all cursor-pointer ${
+                    currentLine >= 6
+                      ? 'text-slate-400 opacity-40 cursor-not-allowed'
+                      : isDark
+                      ? 'text-slate-300 hover:text-white hover:bg-slate-700'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-200'
+                  }`}
+                  title="Next Line"
                 >
                   <SkipForward className="w-4 h-4" />
                 </button>
-              </div>
 
-              <button
-                onClick={handleReset}
-                className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
-                  isDark ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white' : 'bg-slate-100 text-slate-700 border-slate-300 hover:text-black'
-                }`}
-                title="Reset to Line 1"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
+                <button
+                  onClick={handleReset}
+                  className={`p-2 rounded-xl transition-all cursor-pointer ${
+                    isDark ? 'text-slate-300 hover:text-white hover:bg-slate-700' : 'text-slate-700 hover:text-black hover:bg-slate-200'
+                  }`}
+                  title="Reset to Line 1"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
 
               <button
                 onClick={() => {
@@ -407,29 +407,29 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <button
                   onClick={() => {
                     sounds.playPop();
-                    setRegisterBudget(3);
+                    setRegisterBudget(2);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-                    registerBudget === 3
+                    registerBudget === 2
                       ? 'bg-emerald-600 text-white shadow-md font-black'
                       : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white'
                   }`}
                 >
-                  k = 3 (Perfect Fit ✨)
+                  k = 2 (Perfect Fit ✨)
                 </button>
                 <button
                   onClick={() => {
                     sounds.playSpill();
-                    setRegisterBudget(2);
+                    setRegisterBudget(1);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    registerBudget === 2
+                    registerBudget === 1
                       ? 'bg-red-600 text-white shadow-md animate-pulse font-black'
                       : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white'
                   }`}
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>k = 2 (Forced Spill! 🚨)</span>
+                  <span>k = 1 (Forced Spill! 🚨)</span>
                 </button>
               </div>
             </div>
@@ -478,75 +478,51 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
           </div>
 
           {/* Telemetry Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
-              isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
-            }`}>
-              <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400">
-                <Cpu className="w-5 h-5" />
-              </div>
+          <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-2xl border text-xs font-mono ${
+            isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-slate-100 border-slate-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Registers Used</div>
-                <div className="text-lg font-black font-mono text-cyan-800 dark:text-cyan-400">
-                  {registerBudget === 3 ? `${Math.min(3, currentInfo.activeVars.length)} / 3 Slots` : `${Math.min(2, currentInfo.activeVars.length)} / 2 Slots`}
+                <div className="text-[10px] text-slate-500 font-bold">Total Elapsed Clock</div>
+                <div className="font-extrabold text-slate-900 dark:text-white">{totalCycles} Cycles</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <div>
+                <div className="text-[10px] text-slate-500 font-bold">Execution Latency</div>
+                <div className="font-extrabold text-emerald-700 dark:text-emerald-400">{totalLatencyNs} ns</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+              <div>
+                <div className="text-[10px] text-slate-500 font-bold">Hardware Budget</div>
+                <div className="font-extrabold text-purple-700 dark:text-purple-400">
+                  {registerBudget === 2 ? 'k = 2 (Optimal χ(G))' : 'k = 1 (Constrained)'}
                 </div>
               </div>
             </div>
 
-            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
-              isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
-            }`}>
-              <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-400">
-                <Clock className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-2">
+              <HardDrive className={`w-4 h-4 shrink-0 ${isSpilledNow ? 'text-red-500 animate-pulse' : 'text-slate-400'}`} />
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Execution Cycles</div>
-                <div className="text-lg font-black font-mono text-purple-800 dark:text-purple-400">
-                  {totalCycles} Cycles
-                </div>
-              </div>
-            </div>
-
-            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
-              isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
-            }`}>
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
-                <Flame className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Elapsed Time</div>
-                <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-400">
-                  {totalLatencyNs} ns
-                </div>
-              </div>
-            </div>
-
-            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
-              isSpilledNow
-                ? 'bg-red-50 border-red-500 text-red-950 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-300 animate-pulse'
-                : isDark
-                ? 'bg-slate-900/70 border-slate-800'
-                : 'bg-slate-50 border-slate-200 shadow-sm'
-            }`}>
-              <div className={`p-2.5 rounded-xl ${isSpilledNow ? 'bg-red-500 text-white' : 'bg-pink-500/20 text-pink-600 dark:text-pink-400'}`}>
-                <HardDrive className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">RAM Stack Spill</div>
-                <div className={`text-lg font-black font-mono ${isSpilledNow ? 'text-red-700 dark:text-red-400 font-black' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                  {isSpilledNow ? 'EVACUATED TO RAM' : '0 B (In-Register)'}
+                <div className="text-[10px] text-slate-500 font-bold">RAM Memory Spills</div>
+                <div className={`font-extrabold ${isSpilledNow ? 'text-red-500 font-black' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                  {isSpilledNow ? '1 SPILL (+200 cycles)' : '0 Spills (100% Speed)'}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. Main Stage: Two Spacious Connected Panels (Left: Code & Liveness | Right: Graph & Silicon Hardware) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 3. The 4-Box Master Stage Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* ======================================================== */}
-          {/* LEFT PANEL (5 COLS): CODE TERMINAL & LIVENESS TIMELINES   */}
-          {/* ======================================================== */}
+          {/* LEFT PANEL (5 COLS): CODE & LIVENESS RADAR */}
           <div className="lg:col-span-5 space-y-6">
             
             {/* Box 1: Interactive Code Terminal */}
@@ -557,13 +533,13 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <div className="flex items-center gap-2">
                   <Code className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                   <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                    1. Code & Compiler IR
+                    1. Compiled Assembly Stream
                   </span>
                 </div>
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
                   isDark ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300 font-extrabold'
                 }`}>
-                  Active Pointer: L{currentLine}
+                  Pointer: L{currentLine}
                 </span>
               </div>
 
@@ -609,7 +585,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           <span className={`font-bold text-[10px] px-2 py-0.5 rounded border ${
                             isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-900 border-emerald-300 font-black'
                           }`}>
-                            ♻️ Handed Off
+                            ♻️ Register Reused
                           </span>
                         )}
                         {row.event === 'spill' && (
@@ -637,7 +613,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               </div>
             </div>
 
-            {/* Box 2: Compiler Liveness Gantt Radar */}
+            {/* Box 2: Compiler Liveness Radar */}
             <div className={`p-5 sm:p-6 rounded-3xl border-2 shadow-xl space-y-4 ${
               isDark ? 'bg-[#101628] border-slate-700/80' : 'bg-white border-slate-200'
             }`}>
@@ -690,9 +666,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                     >
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-bold flex items-center gap-1.5">
-                          <span>{v.icon}</span>
-                          <span className="text-slate-900 dark:text-white font-mono font-bold">{v.friendlyName}</span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">({v.name})</span>
+                          <span className="text-slate-900 dark:text-white font-mono font-bold">{v.name}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">({v.friendlyName})</span>
                         </span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           isAlive
@@ -735,19 +710,17 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 isDark ? 'bg-purple-500/10 border-purple-500/30 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-950 font-medium'
               }`}>
                 <span className="font-black text-purple-800 dark:text-purple-400">⚡ The Golden Rule: </span>
-                Notice <strong className="text-slate-900 dark:text-white">Coins [2–3]</strong> dies at Line 3, and <strong className="text-slate-900 dark:text-white">Shield [4–6]</strong> is born at Line 4.
+                Notice <strong className="text-slate-900 dark:text-white">var b [2–3]</strong> dies at Line 3, and <strong className="text-slate-900 dark:text-white">var c [3–4]</strong> is born at Line 3.
                 Because their lifespans never overlap, they safely share <strong>Register R2</strong>!
               </div>
             </div>
 
           </div>
 
-          {/* ======================================================== */}
-          {/* RIGHT PANEL (7 COLS): CONFLICT GRAPH & PHYSICAL SILICON   */}
-          {/* ======================================================== */}
+          {/* RIGHT PANEL (7 COLS): CONFLICT GRAPH & PHYSICAL SILICON */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Box 3: The Conflict Graph Stage */}
+            {/* Box 3: The Interference Graph Stage */}
             <div className={`p-5 sm:p-6 rounded-3xl border-2 shadow-xl space-y-4 ${
               isDark ? 'bg-[#101628] border-slate-700/80' : 'bg-white border-slate-200'
             }`}>
@@ -761,7 +734,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-black border ${
                   isDark ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-amber-100 text-amber-950 border-amber-300'
                 }`}>
-                  Chromatic Number χ(G) = 3 Colors
+                  Chromatic Number χ(G) = 2 Colors
                 </span>
               </div>
 
@@ -841,9 +814,16 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           style={{ filter: isAlive ? `drop-shadow(0 0 12px ${n.color})` : isSelected ? 'drop-shadow(0 0 10px #06B6D4)' : 'none' }}
                         />
 
-                        {/* Variable Icon */}
-                        <text x={n.x} y={n.y + 7} textAnchor="middle" fontSize="18">
-                          {n.icon}
+                        {/* Variable Name inside circle */}
+                        <text
+                          x={n.x}
+                          y={n.y + 6}
+                          textAnchor="middle"
+                          fontSize="14"
+                          fontWeight="bold"
+                          fill={isDark ? '#FFFFFF' : '#0F172A'}
+                        >
+                          {n.id}
                         </text>
 
                         {/* Register Badge (Cleanly spaced below circle) */}
@@ -873,7 +853,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           x={n.x}
                           y={n.y - 30}
                           textAnchor="middle"
-                          fontSize="13"
+                          fontSize="12"
                           fontWeight="bold"
                           fill={isDark ? '#FFFFFF' : '#0F172A'}
                         >
@@ -885,15 +865,15 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 </svg>
               </div>
 
-              {/* Dedicated Graph Legend Bar (Completely OUTSIDE the SVG Canvas - Zero Overlaps Guaranteed!) */}
+              {/* Dedicated Graph Legend Bar (Completely OUTSIDE the SVG Canvas) */}
               <div className={`flex flex-wrap items-center justify-between text-xs font-mono p-3.5 rounded-2xl border ${
                 isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-800 shadow-sm'
               }`}>
                 <div className="flex items-center gap-2">
                   <span className="w-3.5 h-1.5 bg-red-500 rounded-full inline-block animate-pulse" />
-                  <span className="font-extrabold text-red-700 dark:text-red-400">Red Laser = Simultaneous Conflict</span>
+                  <span className="font-extrabold text-red-700 dark:text-red-400">Red Laser = Active Collision</span>
                 </div>
-                <span className="text-slate-600 dark:text-slate-400 font-bold">Nodes colored by Assigned Hardware Register</span>
+                <span className="text-slate-600 dark:text-slate-400 font-bold">Cyan = Register R1 | Purple = Register R2</span>
               </div>
             </div>
 
@@ -905,30 +885,30 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <div className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                    4. What Actually Happens In The Computer (CPU Silicon vs RAM)
+                    4. Physical CPU Silicon (ALU & Register File)
                   </span>
                 </div>
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-black border ${
                   isDark ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-emerald-100 text-emerald-950 border-emerald-300'
                 }`}>
-                  Physical Register File (0.3ns)
+                  Register Speed: 0.3 ns
                 </span>
               </div>
 
-              {/* The Physical Microarchitecture Board Layout */}
+              {/* Physical Microarchitecture Layout */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch font-mono">
                 
                 {/* CPU Die Container (8 cols) */}
                 <div key={pulseKey} className={`md:col-span-8 p-4 rounded-2xl border-2 space-y-3 relative transition-all duration-300 ${
                   isDark ? 'bg-slate-950 border-emerald-500/40 text-white' : 'bg-slate-50 border-emerald-500/40 text-slate-900 shadow-sm'
                 }`}>
-                  {/* CPU Chip Header */}
+                  {/* CPU Header */}
                   <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200 dark:border-slate-800">
                     <span className="text-emerald-700 dark:text-emerald-400 font-black flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5" />
                       <span>CPU CORE SILICON (ALU & REGISTERS)</span>
                     </span>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">3.3 GHz Turbo</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">3.3 GHz Clock</span>
                   </div>
 
                   {/* ALU Banner */}
@@ -939,99 +919,71 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                     <span className="text-cyan-800 dark:text-cyan-400 font-black animate-pulse">{currentInfo.aluOp}</span>
                   </div>
 
-                  {/* 3 Physical Registers */}
-                  <div className="grid grid-cols-3 gap-2.5 pt-1">
+                  {/* 2 Physical Registers */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
                     {/* Register R1 */}
                     <div className={`p-3 rounded-xl border-2 text-center space-y-1 ${
                       isDark ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-500 bg-cyan-50 shadow-sm'
                     }`}>
-                      <div className="text-[10px] text-cyan-800 dark:text-cyan-400 font-black">REGISTER R1</div>
-                      <div className="text-xs font-black text-slate-950 dark:text-white truncate">
-                        {currentLine <= 5 ? '❤️ Health' : 'FREE'}
+                      <div className="text-[10px] text-cyan-800 dark:text-cyan-400 font-black">REGISTER R1 (Cyan)</div>
+                      <div className="text-sm font-black text-slate-950 dark:text-white truncate">
+                        {currentLine <= 4 ? 'var a = 10' : 'var e = 70'}
                       </div>
                       <div className="text-[10px] font-mono text-cyan-900 dark:text-cyan-300 font-black">
-                        {currentLine <= 5 ? '100 (0x64)' : 'EMPTY'}
+                        {currentLine <= 4 ? '0x000A' : '0x0046'}
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
-                        isDark ? 'bg-cyan-500/20 text-cyan-300' : 'bg-cyan-200 text-cyan-950 border border-cyan-300 font-black'
+                        currentLine >= 5
+                          ? 'bg-emerald-600 text-white animate-pulse font-black'
+                          : isDark
+                          ? 'bg-cyan-500/20 text-cyan-300'
+                          : 'bg-cyan-200 text-cyan-950 border border-cyan-300 font-black'
                       }`}>
-                        {currentLine <= 5 ? 'LOCKED' : 'IDLE'}
+                        {currentLine >= 5 ? '♻️ REUSED BY E!' : 'OCCUPIED'}
                       </span>
                     </div>
 
                     {/* Register R2 */}
                     <div className={`p-3 rounded-xl border-2 text-center space-y-1 ${
-                      isDark ? 'border-purple-500/50 bg-purple-500/10' : 'border-purple-500 bg-purple-50 shadow-sm'
+                      registerBudget === 2
+                        ? isDark
+                          ? 'border-purple-500/50 bg-purple-500/10'
+                          : 'border-purple-500 bg-purple-50 shadow-sm'
+                        : 'border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/40 opacity-40'
                     }`}>
-                      <div className="text-[10px] text-purple-800 dark:text-purple-400 font-black">REGISTER R2</div>
-                      <div className="text-xs font-black text-slate-950 dark:text-white truncate">
-                        {currentLine <= 3
-                          ? '🪙 Coins'
-                          : registerBudget === 3
-                          ? '🛡️ Shield'
-                          : '🎯 Score'}
+                      <div className="text-[10px] text-purple-800 dark:text-purple-400 font-black">
+                        {registerBudget === 2 ? 'REGISTER R2 (Purple)' : 'DISABLED'}
+                      </div>
+                      <div className="text-sm font-black text-slate-950 dark:text-white truncate">
+                        {registerBudget === 2
+                          ? currentLine === 2
+                            ? 'var b = 20'
+                            : currentLine === 3
+                            ? 'var c = 30'
+                            : currentLine === 4
+                            ? 'var d = 60'
+                            : 'FREE'
+                          : 'OFFLINE'}
                       </div>
                       <div className="text-[10px] font-mono text-purple-900 dark:text-purple-300 font-black">
-                        {currentLine <= 3
-                          ? '50 (0x32)'
-                          : registerBudget === 3
-                          ? '300 (0x12C)'
-                          : '150 (0x96)'}
+                        {registerBudget === 2
+                          ? currentLine === 2
+                            ? '0x0014'
+                            : currentLine === 3
+                            ? '0x001E'
+                            : currentLine === 4
+                            ? '0x003C'
+                            : 'EMPTY'
+                          : 'OFFLINE'}
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
-                        currentLine >= 4 && registerBudget === 3
+                        registerBudget === 2 && currentLine >= 3 && currentLine <= 4
                           ? 'bg-emerald-600 text-white animate-pulse font-black'
                           : isDark
                           ? 'bg-purple-500/20 text-purple-300'
                           : 'bg-purple-200 text-purple-950 border border-purple-300 font-black'
                       }`}>
-                        {currentLine >= 4 && registerBudget === 3 ? '♻️ REUSED!' : 'OCCUPIED'}
-                      </span>
-                    </div>
-
-                    {/* Register R3 */}
-                    <div className={`p-3 rounded-xl border-2 text-center space-y-1 ${
-                      registerBudget === 3
-                        ? isDark
-                          ? 'border-emerald-500/50 bg-emerald-500/10'
-                          : 'border-emerald-500 bg-emerald-50 shadow-sm'
-                        : 'border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/40 opacity-40'
-                    }`}>
-                      <div className="text-[10px] text-emerald-800 dark:text-emerald-400 font-black">
-                        {registerBudget === 3 ? 'REGISTER R3' : 'DISABLED'}
-                      </div>
-                      <div className="text-xs font-black text-slate-950 dark:text-white truncate">
-                        {registerBudget === 3
-                          ? currentLine <= 4
-                            ? currentLine >= 3
-                              ? '🎯 Score'
-                              : 'IDLE'
-                            : '⚡ Speed'
-                          : 'OFFLINE'}
-                      </div>
-                      <div className="text-[10px] font-mono text-emerald-900 dark:text-emerald-300 font-black">
-                        {registerBudget === 3
-                          ? currentLine <= 4
-                            ? currentLine >= 3
-                              ? '150 (0x96)'
-                              : 'EMPTY'
-                            : '110 (0x6E)'
-                          : 'OFFLINE'}
-                      </div>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
-                        registerBudget === 3 && currentLine >= 5
-                          ? 'bg-emerald-600 text-white animate-pulse font-black'
-                          : isDark
-                          ? 'bg-emerald-500/20 text-emerald-300'
-                          : 'bg-emerald-200 text-emerald-950 border border-emerald-300 font-black'
-                      }`}>
-                        {registerBudget === 3
-                          ? currentLine >= 5
-                            ? '♻️ REUSED!'
-                            : currentLine >= 3
-                            ? 'ACTIVE'
-                            : 'IDLE'
-                          : 'LOCKED'}
+                        {registerBudget === 2 && currentLine >= 3 && currentLine <= 4 ? '♻️ REUSED!' : 'OCCUPIED'}
                       </span>
                     </div>
                   </div>
@@ -1060,7 +1012,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       </div>
                       <div className="text-xs font-black text-red-800 dark:text-red-400">STACK SPILL: [rbp - 8]</div>
                       <div className="text-[11px] text-red-950 dark:text-red-200 font-medium leading-tight">
-                        Shield stored in RAM because hardware has only 2 registers!
+                        Variables forced to RAM because hardware only has 1 register!
                       </div>
                       <div className="p-1.5 rounded-lg bg-red-600 text-[10px] font-black text-white shadow-sm">
                         +200 CYCLE STALL PENALTY!
@@ -1070,7 +1022,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                     <div className="text-center py-4 space-y-1.5">
                       <div className="text-emerald-800 dark:text-emerald-400 text-xs font-black">RAM IDLE (100% Cache Hit)</div>
                       <p className="text-[11px] text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
-                        Graph coloring keeps all variables inside 0.3ns CPU registers. Zero stalls to RAM!
+                        Graph coloring keeps all 5 variables inside 0.3ns CPU registers. Zero stalls to RAM!
                       </p>
                     </div>
                   )}
@@ -1105,7 +1057,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }`}
             >
               <Zap className="w-4 h-4" />
-              <span>1. Why Graph Coloring Solves Register Scarcity</span>
+              <span>1. How Graph Coloring Prevents Stalls</span>
             </button>
 
             <button
@@ -1120,7 +1072,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>2. The Compiler Algorithm (Chaitin-Briggs)</span>
+              <span>2. The Chaitin-Briggs Compiler Algorithm</span>
             </button>
 
             <button
@@ -1135,7 +1087,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }`}
             >
               <Flame className="w-4 h-4" />
-              <span>3. The Physical Penalty of Spilling (RAM vs Silicon)</span>
+              <span>3. The Physical Penalty of Memory Spilling</span>
             </button>
           </div>
 
@@ -1150,7 +1102,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                   <span>Infinite Code vs Finite Silicon</span>
                 </div>
                 <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
-                  Programmers write code with unlimited variables (`health`, `coins`, `shield`). But physical CPU chips only have 16 to 32 ultra-fast general purpose registers. How do we fit 100 variables into 32 pockets?
+                  Programmers write code with unlimited variables (a, b, c, d, e). But physical CPU chips only have 16 to 32 ultra-fast general purpose registers. Graph coloring fits any number of variables into finite registers.
                 </p>
               </div>
 
@@ -1162,7 +1114,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                   <span>Liveness Analysis</span>
                 </div>
                 <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
-                  Variables only occupy space while alive. By calculating exact birth and death lines, the compiler proves that `coins` and `shield` never overlap, allowing them to share Register R2 with zero latency penalty.
+                  Variables only occupy space while alive. By calculating exact birth and death lines, the compiler proves that b, c, and d never overlap, allowing them to sequentially share Register R2 with zero latency penalty.
                 </p>
               </div>
 

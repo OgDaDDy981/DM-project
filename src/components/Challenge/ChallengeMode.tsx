@@ -471,8 +471,8 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({
               <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
               <span>
                 {selectedNodeId
-                  ? `Selected: "${selectedNodeId}". Choose an available pocket below!`
-                  : 'Click any circle above to select and color it.'}
+                  ? `Selected: "${selectedNodeId}". Choose an available hardware register below!`
+                  : 'Click any variable node above to select and color it.'}
               </span>
             </span>
             <span className="text-cyan-700 dark:text-cyan-400 font-black">
@@ -489,7 +489,7 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-xs font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Target className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Assign Pocket:</span>
+                <span>Assign Hardware Register:</span>
               </span>
 
               <div className="flex flex-wrap items-center gap-2.5">
@@ -508,7 +508,7 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({
                       style={{ backgroundColor: reg.color }}
                       title={
                         isForbidden
-                          ? 'Neighboring variable already uses this pocket (Clash Risk)!'
+                          ? 'Neighboring variable already uses this register (Clash Risk)!'
                           : 'Safe to assign!'
                       }
                     >

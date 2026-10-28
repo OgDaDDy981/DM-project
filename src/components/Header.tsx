@@ -7,7 +7,6 @@ import {
   Moon,
   Presentation,
   Trophy,
-  Cpu,
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
@@ -65,33 +64,58 @@ export const Header: React.FC<HeaderProps> = ({
         </a>
 
         {/* Navigation links */}
-        <nav className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+        <nav className="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
           <a
-            href="#simulation"
-            className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
-              activeSection === 'simulation'
+            href="#problem"
+            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeSection === 'problem'
+                ? isDark
+                  ? 'bg-red-500/15 text-red-400 font-extrabold border border-red-500/30 shadow-sm'
+                  : 'bg-red-100 text-red-900 font-extrabold border border-red-300 shadow-sm'
+                : 'hover:text-red-600 dark:hover:text-red-400'
+            }`}
+          >
+            <span>1. The Problem</span>
+          </a>
+
+          <a
+            href="#math-solution"
+            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeSection === 'math-solution'
+                ? isDark
+                  ? 'bg-purple-500/15 text-purple-400 font-extrabold border border-purple-500/30 shadow-sm'
+                  : 'bg-purple-100 text-purple-900 font-extrabold border border-purple-300 shadow-sm'
+                : 'hover:text-purple-600 dark:hover:text-purple-400'
+            }`}
+          >
+            <span>2. Discrete Math</span>
+          </a>
+
+          <a
+            href="#compiler-silicon"
+            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeSection === 'compiler-silicon'
+                ? isDark
+                  ? 'bg-emerald-500/15 text-emerald-400 font-extrabold border border-emerald-500/30 shadow-sm'
+                  : 'bg-emerald-100 text-emerald-900 font-extrabold border border-emerald-300 shadow-sm'
+                : 'hover:text-emerald-600 dark:hover:text-emerald-400'
+            }`}
+          >
+            <span>3. Silicon Execution</span>
+          </a>
+
+          <a
+            href="#challenge"
+            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeSection === 'challenge'
                 ? isDark
                   ? 'bg-cyan-500/15 text-cyan-400 font-extrabold border border-cyan-500/30 shadow-sm'
                   : 'bg-cyan-100 text-cyan-900 font-extrabold border border-cyan-300 shadow-sm'
                 : 'hover:text-cyan-600 dark:hover:text-cyan-400'
             }`}
           >
-            <Cpu className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-            <span>Compiler & Silicon Simulation</span>
-          </a>
-
-          <a
-            href="#challenge"
-            className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
-              activeSection === 'challenge'
-                ? isDark
-                  ? 'bg-amber-500/15 text-amber-400 font-extrabold border border-amber-500/30 shadow-sm'
-                  : 'bg-amber-100 text-amber-900 font-extrabold border border-amber-300 shadow-sm'
-                : 'hover:text-amber-600 dark:hover:text-amber-400'
-            }`}
-          >
-            <Trophy className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>Register Arcade</span>
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span>4. Arcade</span>
           </a>
         </nav>
 

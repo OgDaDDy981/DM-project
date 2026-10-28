@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { ProblemSimulation } from './components/ProblemSimulation/ProblemSimulation';
+import { MathSolutionSimulation } from './components/MathSolution/MathSolutionSimulation';
 import { UnifiedCompilerSiliconSimulation } from './components/UnifiedSimulation/UnifiedCompilerSiliconSimulation';
 import { ChallengeMode } from './components/Challenge/ChallengeMode';
 import { PresentationMode } from './components/Presentation/PresentationMode';
@@ -9,7 +11,7 @@ import { sounds } from './utils/soundEffects';
 
 export const App: React.FC = () => {
   const [isPresentationOpen, setIsPresentationOpen] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<string>('simulation');
+  const [activeSection, setActiveSection] = useState<string>('problem');
   
   // Theme state: defaults to false (Fresh, vibrant daylight mode)
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -68,7 +70,7 @@ export const App: React.FC = () => {
 
   // Scroll spy to highlight active section in navbar
   useEffect(() => {
-    const sections = ['hero', 'simulation', 'challenge'];
+    const sections = ['hero', 'problem', 'math-solution', 'compiler-silicon', 'challenge'];
     const handleScroll = () => {
       const scrollPos = window.scrollY + 200;
       for (const sectionId of sections) {
@@ -87,8 +89,8 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleScrollToSimulator = () => {
-    const el = document.getElementById('simulation');
+  const scrollToElement = (id: string) => {
+    const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -112,21 +114,33 @@ export const App: React.FC = () => {
 
       {/* Main Content Sections */}
       <main className="flex-1">
-        {/* 1. Hero Section with 3-Step Interactive Toy */}
+        {/* Hero Section */}
         <Hero
           onStartTour={() => setIsPresentationOpen(true)}
-          onExploreSimulation={handleScrollToSimulator}
+          onExploreSimulation={() => scrollToElement('problem')}
           isDark={isDark}
           isStoryMode={isStoryMode}
         />
 
-        {/* 2. Unified Master Compiler & Physical Silicon Simulation Studio */}
+        {/* STAGE 1: THE HARDWARE PROBLEM (Problem Simulation) */}
+        <ProblemSimulation
+          isDark={isDark}
+          onProceedToSolution={() => scrollToElement('math-solution')}
+        />
+
+        {/* STAGE 2: THE DISCRETE MATH RELATION (Graph Coloring Solution) */}
+        <MathSolutionSimulation
+          isDark={isDark}
+          onProceedToSilicon={() => scrollToElement('compiler-silicon')}
+        />
+
+        {/* STAGE 3: THE COMPILED MACHINE EXECUTION (Physical Silicon) */}
         <UnifiedCompilerSiliconSimulation
           isDark={isDark}
           isStoryMode={isStoryMode}
         />
 
-        {/* 3. The Register Allocation Game Arcade */}
+        {/* STAGE 4: INTERACTIVE ARCADE / PRACTICE LAB */}
         <ChallengeMode
           isDark={isDark}
           isStoryMode={isStoryMode}
