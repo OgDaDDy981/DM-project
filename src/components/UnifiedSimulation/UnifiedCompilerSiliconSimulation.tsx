@@ -135,7 +135,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
       varsBorn: ['health'],
       varsDying: [],
       activeVars: ['health'],
-      desc: 'Player health initialized to 100. Electron pulse writes 100 into Hardware Register R1.',
+      desc: 'Player health initialized to 100. Stored in Hardware Register R1.',
       event: 'birth',
       aluOp: 'LOAD CONSTANT 100',
     },
@@ -146,7 +146,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
       varsBorn: ['coins'],
       varsDying: [],
       activeVars: ['health', 'coins'],
-      desc: '50 coins collected. Both health & coins are alive. Stored in R1 and R2. Zero clashes yet!',
+      desc: '50 coins collected. Both health & coins are alive in R1 and R2. Zero clashes yet!',
       event: 'birth',
       aluOp: 'LOAD CONSTANT 50',
     },
@@ -271,13 +271,13 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
   const currentInfo = codeLines[currentLine - 1];
 
-  // Graph Nodes & Edges (spacious, zero-overlap 460x280 coordinate system)
+  // Graph Nodes & Edges (spacious 500x320 coordinate system with 100% zero overlap)
   const graphNodes = [
-    { id: 'health', name: 'Health', icon: '❤️', x: 230, y: 55, deg: 3, reg: 'R1', color: '#06B6D4' },
-    { id: 'coins', name: 'Coins', icon: '🪙', x: 80, y: 130, deg: 2, reg: 'R2', color: '#8B5CF6' },
-    { id: 'score', name: 'Score', icon: '🎯', x: 135, y: 225, deg: 3, reg: 'R3', color: '#10B981' },
-    { id: 'shield', name: 'Shield', icon: '🛡️', x: 325, y: 225, deg: 3, reg: registerBudget === 3 ? 'R2' : 'RAM', color: registerBudget === 3 ? '#8B5CF6' : '#EF4444' },
-    { id: 'speed', name: 'Speed', icon: '⚡', x: 380, y: 130, deg: 1, reg: 'R3', color: '#10B981' },
+    { id: 'health', name: 'Health', icon: '❤️', x: 250, y: 65, deg: 3, reg: 'R1', color: '#06B6D4' },
+    { id: 'coins', name: 'Coins', icon: '🪙', x: 95, y: 155, deg: 2, reg: 'R2', color: '#8B5CF6' },
+    { id: 'score', name: 'Score', icon: '🎯', x: 165, y: 255, deg: 3, reg: 'R3', color: '#10B981' },
+    { id: 'shield', name: 'Shield', icon: '🛡️', x: 335, y: 255, deg: 3, reg: registerBudget === 3 ? 'R2' : 'RAM', color: registerBudget === 3 ? '#8B5CF6' : '#EF4444' },
+    { id: 'speed', name: 'Speed', icon: '⚡', x: 405, y: 155, deg: 1, reg: 'R3', color: '#10B981' },
   ];
 
   const graphEdges = [
@@ -303,20 +303,20 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
         {/* 1. Header Banner */}
         <div className="text-center max-w-4xl mx-auto space-y-3">
           <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider shadow-sm border ${
-            isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300'
+            isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300 font-extrabold'
           }`}>
-            <Zap className="w-4 h-4 text-cyan-500 animate-pulse" />
+            <Zap className="w-4 h-4 text-cyan-600 dark:text-cyan-400 animate-pulse" />
             <span>{isStoryMode ? 'The Interactive Compiler & Silicon Studio' : 'Live Microarchitecture & Interference Graph Coloring Simulation'}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight">
             {isStoryMode ? 'Watch Code Turn Into ' : 'From Symbolic Code to '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 dark:from-cyan-400 dark:via-purple-500 dark:to-pink-500">
               {isStoryMode ? 'Lightning Fast Silicon' : 'Physical CPU Hardware Registers'}
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto font-medium">
             {isStoryMode
               ? 'Variables alive at the same moment clash and need different pockets. Variables alive at different moments share pockets for free! Watch the data packets flow from code lines directly into CPU registers.'
               : 'End-to-end execution pipeline: Symbolic AST → Liveness interval analysis → Interference graph coloring → Physical register allocation → Memory spilling and pipeline stall penalties.'}
@@ -348,20 +348,20 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 <button
                   onClick={handleStepBack}
                   disabled={currentLine <= 1}
-                  className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                  className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
                   title="Step Backward"
                 >
                   <SkipBack className="w-4 h-4" />
                 </button>
 
-                <span className="px-3 text-xs font-mono font-black text-cyan-600 dark:text-cyan-400">
+                <span className="px-3 text-xs font-mono font-black text-cyan-700 dark:text-cyan-400">
                   Line {currentLine} / 6
                 </span>
 
                 <button
                   onClick={handleStepForward}
                   disabled={currentLine >= 6}
-                  className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                  className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
                   title="Step Forward"
                 >
                   <SkipForward className="w-4 h-4" />
@@ -387,7 +387,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                   playbackSpeed === 900
                     ? isDark
                       ? 'bg-purple-500/20 text-purple-400 border-purple-500/50 shadow-sm'
-                      : 'bg-purple-100 text-purple-900 border-purple-300 shadow-sm'
+                      : 'bg-purple-100 text-purple-900 border-purple-300 shadow-sm font-black'
                     : isDark
                     ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
                     : 'bg-slate-100 text-slate-700 border-slate-300 hover:text-black'
@@ -400,7 +400,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
             {/* Hardware Register Budget Selector (The Spill Switch) */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 hidden sm:inline">Hardware Registers:</span>
+              <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-400 hidden sm:inline">Hardware Registers:</span>
               <div className={`flex items-center p-1 rounded-2xl border ${
                 isDark ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100 border-slate-300'
               }`}>
@@ -411,8 +411,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                     registerBudget === 3
-                      ? 'bg-emerald-500 text-white shadow-md'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                      ? 'bg-emerald-600 text-white shadow-md font-black'
+                      : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white'
                   }`}
                 >
                   k = 3 (Perfect Fit ✨)
@@ -424,8 +424,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     registerBudget === 2
-                      ? 'bg-red-500 text-white shadow-md animate-pulse'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                      ? 'bg-red-600 text-white shadow-md animate-pulse font-black'
+                      : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white'
                   }`}
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
@@ -437,9 +437,9 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
           {/* Scrubber Line Track Bar */}
           <div className="pt-2">
-            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-400 pb-1.5">
-              <span className="font-semibold">Execution Timeline Scrubber (Click any step to jump)</span>
-              <span className="text-cyan-600 dark:text-cyan-400 font-bold">Active: Line {currentLine} — {codeLines[currentLine - 1].code}</span>
+            <div className="flex items-center justify-between text-xs font-mono text-slate-700 dark:text-slate-400 pb-1.5">
+              <span className="font-bold">Execution Timeline Scrubber (Click any step to jump)</span>
+              <span className="text-cyan-700 dark:text-cyan-400 font-extrabold">Active: Line {currentLine} — {codeLines[currentLine - 1].code}</span>
             </div>
             <div className="grid grid-cols-6 gap-2">
               {codeLines.map((item) => {
@@ -453,20 +453,20 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       isCurrent
                         ? isDark
                           ? 'bg-cyan-500/25 border-cyan-400 text-white shadow-lg ring-2 ring-cyan-400/50 scale-[1.02]'
-                          : 'bg-cyan-100 border-cyan-500 text-cyan-950 font-black shadow-md ring-2 ring-cyan-400 scale-[1.02]'
+                          : 'bg-cyan-100 border-2 border-cyan-500 text-cyan-950 font-black shadow-md ring-2 ring-cyan-400/50 scale-[1.02]'
                         : isPassed
                         ? isDark
                           ? 'bg-slate-800/70 border-emerald-500/40 text-slate-300 hover:bg-slate-800'
-                          : 'bg-emerald-50/70 border-emerald-300 text-slate-700 hover:bg-emerald-100'
+                          : 'bg-emerald-50 border border-emerald-300 text-slate-800 hover:bg-emerald-100'
                         : isDark
                         ? 'bg-slate-900/60 border-slate-800 text-slate-500 hover:bg-slate-850 hover:text-slate-300'
                         : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
                     <div className="flex items-center justify-between text-[11px] font-mono font-bold">
-                      <span className={isCurrent ? 'text-cyan-600 dark:text-cyan-400 font-black' : ''}>L{item.line}</span>
-                      {isPassed && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
-                      {isCurrent && <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />}
+                      <span className={isCurrent ? 'text-cyan-800 dark:text-cyan-400 font-black' : ''}>L{item.line}</span>
+                      {isPassed && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                      {isCurrent && <span className="w-2 h-2 rounded-full bg-cyan-600 dark:bg-cyan-400 animate-ping" />}
                     </div>
                     <div className="text-xs font-mono font-bold truncate mt-1">
                       {item.code.split('=')[0].trim()}
@@ -479,61 +479,61 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
           {/* Telemetry Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${
+            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
               isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
             }`}>
-              <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400">
+              <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400">
                 <Cpu className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">Registers Used</div>
-                <div className="text-base font-black font-mono text-cyan-700 dark:text-cyan-400">
+                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Registers Used</div>
+                <div className="text-lg font-black font-mono text-cyan-800 dark:text-cyan-400">
                   {registerBudget === 3 ? `${Math.min(3, currentInfo.activeVars.length)} / 3 Slots` : `${Math.min(2, currentInfo.activeVars.length)} / 2 Slots`}
                 </div>
               </div>
             </div>
 
-            <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${
+            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
               isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
             }`}>
-              <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400">
+              <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-400">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">Execution Cycles</div>
-                <div className="text-base font-black font-mono text-purple-700 dark:text-purple-400">
+                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Execution Cycles</div>
+                <div className="text-lg font-black font-mono text-purple-800 dark:text-purple-400">
                   {totalCycles} Cycles
                 </div>
               </div>
             </div>
 
-            <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${
+            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
               isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
             }`}>
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
                 <Flame className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">Elapsed Time</div>
-                <div className="text-base font-black font-mono text-emerald-700 dark:text-emerald-400">
+                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">Elapsed Time</div>
+                <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-400">
                   {totalLatencyNs} ns
                 </div>
               </div>
             </div>
 
-            <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${
+            <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${
               isSpilledNow
-                ? 'bg-red-500/15 border-red-500/50 text-red-900 dark:text-red-300 animate-pulse'
+                ? 'bg-red-50 border-red-500 text-red-950 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-300 animate-pulse'
                 : isDark
                 ? 'bg-slate-900/70 border-slate-800'
                 : 'bg-slate-50 border-slate-200 shadow-sm'
             }`}>
-              <div className={`p-2.5 rounded-xl ${isSpilledNow ? 'bg-red-500 text-white' : 'bg-pink-500/20 text-pink-500'}`}>
+              <div className={`p-2.5 rounded-xl ${isSpilledNow ? 'bg-red-500 text-white' : 'bg-pink-500/20 text-pink-600 dark:text-pink-400'}`}>
                 <HardDrive className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">RAM Stack Spill</div>
-                <div className={`text-base font-black font-mono ${isSpilledNow ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                <div className="text-[10px] font-mono uppercase font-bold text-slate-600 dark:text-slate-400">RAM Stack Spill</div>
+                <div className={`text-lg font-black font-mono ${isSpilledNow ? 'text-red-700 dark:text-red-400 font-black' : 'text-emerald-700 dark:text-emerald-400'}`}>
                   {isSpilledNow ? 'EVACUATED TO RAM' : '0 B (In-Register)'}
                 </div>
               </div>
@@ -556,12 +556,12 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-2">
                   <Code className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                  <span className="text-xs font-mono font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
                     1. Code & Compiler IR
                   </span>
                 </div>
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
-                  isDark ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300'
+                  isDark ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' : 'bg-cyan-100 text-cyan-900 border-cyan-300 font-extrabold'
                 }`}>
                   Active Pointer: L{currentLine}
                 </span>
@@ -575,26 +575,28 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                     <div
                       key={row.line}
                       onClick={() => handleJumpToLine(row.line)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                      className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col gap-1.5 ${
                         isCurrent
                           ? isDark
-                            ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-lg ring-1 ring-cyan-400/50'
-                            : 'bg-cyan-50 border-cyan-500 text-slate-950 font-bold shadow-md ring-2 ring-cyan-400/50'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-lg ring-2 ring-cyan-400/50'
+                            : 'bg-cyan-100/90 border-cyan-500 text-slate-950 font-black shadow-md ring-2 ring-cyan-400/40'
                           : isDark
                           ? 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:bg-slate-850 hover:text-slate-200'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                          : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100 hover:text-slate-950'
                       }`}
                     >
                       <div className="flex items-center justify-between font-bold">
                         <div className="flex items-center gap-2.5">
-                          <span className={`w-5 text-right font-mono ${isCurrent ? 'text-cyan-600 dark:text-cyan-400 font-black' : 'text-slate-400'}`}>
+                          <span className={`w-5 text-right font-mono ${isCurrent ? 'text-cyan-800 dark:text-cyan-400 font-black' : 'text-slate-400'}`}>
                             {row.line}:
                           </span>
-                          <span className={isCurrent ? 'text-slate-950 dark:text-white font-black' : ''}>{row.code}</span>
+                          <span className={isCurrent ? 'text-slate-950 dark:text-white font-black' : 'text-slate-800 dark:text-slate-200'}>
+                            {row.code}
+                          </span>
                         </div>
                         {isCurrent && (
-                          <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded-md animate-pulse ${
-                            isDark ? 'bg-cyan-500/30 text-cyan-400' : 'bg-cyan-600 text-white shadow-sm'
+                          <span className={`text-[10px] font-mono font-black px-2.5 py-0.5 rounded-md shadow-sm ${
+                            isDark ? 'bg-cyan-500/30 text-cyan-300' : 'bg-cyan-600 text-white'
                           }`}>
                             ACTIVE
                           </span>
@@ -602,17 +604,17 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] pl-7">
-                        <span className="text-purple-700 dark:text-purple-400 font-mono font-bold">{row.asm}</span>
+                        <span className="text-purple-800 dark:text-purple-300 font-mono font-extrabold">{row.asm}</span>
                         {row.event === 'handoff' && (
                           <span className={`font-bold text-[10px] px-2 py-0.5 rounded border ${
-                            isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                            isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-900 border-emerald-300 font-black'
                           }`}>
                             ♻️ Handed Off
                           </span>
                         )}
                         {row.event === 'spill' && (
                           <span className={`font-bold text-[10px] px-2 py-0.5 rounded border animate-pulse ${
-                            isDark ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-red-100 text-red-900 border-red-300'
+                            isDark ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-red-100 text-red-900 border-red-300 font-black'
                           }`}>
                             🚨 Spilled to RAM
                           </span>
@@ -627,11 +629,11 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               <div className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-1.5 ${
                 isDark ? 'bg-slate-900/90 border-cyan-500/30 text-slate-300' : 'bg-cyan-50 border-cyan-200 text-cyan-950'
               }`}>
-                <div className="font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-1.5">
+                <div className="font-bold text-cyan-800 dark:text-cyan-400 flex items-center gap-1.5 text-xs font-mono">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Compiler Operation at Line {currentLine}:</span>
                 </div>
-                <p className="font-medium text-slate-700 dark:text-slate-300">{currentInfo.desc}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-300">{currentInfo.desc}</p>
               </div>
             </div>
 
@@ -642,12 +644,12 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-xs font-mono font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
                     2. Liveness Timelines (Gantt Radar)
                   </span>
                 </div>
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
-                  isDark ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-purple-100 text-purple-900 border-purple-300'
+                  isDark ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-purple-100 text-purple-900 border-purple-300 font-extrabold'
                 }`}>
                   {currentInfo.activeVars.length} Variables Alive Now
                 </span>
@@ -689,14 +691,14 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-bold flex items-center gap-1.5">
                           <span>{v.icon}</span>
-                          <span className="text-slate-900 dark:text-white font-mono">{v.friendlyName}</span>
+                          <span className="text-slate-900 dark:text-white font-mono font-bold">{v.friendlyName}</span>
                           <span className="text-[10px] text-slate-500 dark:text-slate-400">({v.name})</span>
                         </span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           isAlive
                             ? isDark
                               ? 'bg-emerald-500/20 text-emerald-400 animate-pulse'
-                              : 'bg-emerald-100 text-emerald-900 border border-emerald-300 animate-pulse'
+                              : 'bg-emerald-100 text-emerald-950 border border-emerald-300 font-black animate-pulse'
                             : 'text-slate-500'
                         }`}>
                           {isAlive ? 'ALIVE NOW' : `Lines ${v.start}–${v.end}`}
@@ -707,7 +709,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       <div className="h-4 w-full rounded-lg bg-slate-200 dark:bg-slate-800/80 relative overflow-hidden">
                         {/* Moving vertical line cursor */}
                         <div
-                          className="absolute top-0 bottom-0 w-1 bg-cyan-500 z-10 shadow-sm transition-all duration-300"
+                          className="absolute top-0 bottom-0 w-1 bg-cyan-600 dark:bg-cyan-400 z-10 shadow-sm transition-all duration-300"
                           style={{ left: `${((currentLine - 1) / 5) * 100}%` }}
                         />
 
@@ -718,7 +720,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                             left: `${leftPercent}%`,
                             width: `${Math.max(16, widthPercent)}%`,
                             backgroundColor: v.color,
-                            opacity: isAlive ? 1 : 0.4,
+                            opacity: isAlive ? 1 : 0.45,
                             boxShadow: isAlive ? `0 0 14px ${v.color}90` : 'none',
                           }}
                         />
@@ -730,9 +732,9 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
               {/* Crucial Insight Banner */}
               <div className={`p-3.5 rounded-2xl border text-xs font-mono leading-relaxed ${
-                isDark ? 'bg-purple-500/10 border-purple-500/30 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-950'
+                isDark ? 'bg-purple-500/10 border-purple-500/30 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-950 font-medium'
               }`}>
-                <span className="font-bold text-purple-700 dark:text-purple-400">⚡ The Golden Rule: </span>
+                <span className="font-black text-purple-800 dark:text-purple-400">⚡ The Golden Rule: </span>
                 Notice <strong className="text-slate-900 dark:text-white">Coins [2–3]</strong> dies at Line 3, and <strong className="text-slate-900 dark:text-white">Shield [4–6]</strong> is born at Line 4.
                 Because their lifespans never overlap, they safely share <strong>Register R2</strong>!
               </div>
@@ -752,22 +754,22 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-2">
                   <GitBranch className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-mono font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
                     3. Conflict Graph (The Compiler's Interference Map)
                   </span>
                 </div>
-                <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
-                  isDark ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-amber-100 text-amber-950 border-amber-300'
+                <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-black border ${
+                  isDark ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-amber-100 text-amber-950 border-amber-300'
                 }`}>
                   Chromatic Number χ(G) = 3 Colors
                 </span>
               </div>
 
-              {/* SVG Conflict Graph Canvas (Zero Overlap ViewBox 460x280) */}
-              <div className={`h-72 sm:h-80 rounded-2xl border relative flex items-center justify-center overflow-hidden select-none ${
+              {/* SVG Conflict Graph Canvas (Zero Overlap ViewBox 500x320) */}
+              <div className={`h-[330px] sm:h-[350px] rounded-2xl border-2 relative flex items-center justify-center select-none ${
                 isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
               }`}>
-                <svg viewBox="0 0 460 280" className="w-full h-full">
+                <svg viewBox="0 0 500 320" className="w-full h-full">
                   <defs>
                     <linearGradient id="laser-fire" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#EF4444" />
@@ -790,10 +792,10 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           x2={vNode.x}
                           y2={vNode.y}
                           stroke={isClashingNow ? 'url(#laser-fire)' : isDark ? '#475569' : '#CBD5E1'}
-                          strokeWidth={isClashingNow ? '4' : '1.5'}
+                          strokeWidth={isClashingNow ? '4.5' : '2'}
                           strokeDasharray={isClashingNow ? '8 4' : 'none'}
                           className={isClashingNow ? 'animate-laser-dash' : ''}
-                          opacity={isClashingNow ? 1 : 0.4}
+                          opacity={isClashingNow ? 1 : 0.45}
                         />
                       </g>
                     );
@@ -818,7 +820,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           <circle
                             cx={n.x}
                             cy={n.y}
-                            r="28"
+                            r="30"
                             fill="none"
                             stroke={n.color}
                             strokeWidth="2.5"
@@ -832,44 +834,46 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                         <circle
                           cx={n.x}
                           cy={n.y}
-                          r="22"
+                          r="24"
                           fill={isDark ? '#1E293B' : '#FFFFFF'}
                           stroke={n.color}
                           strokeWidth={isSelected ? '5' : '3.5'}
-                          style={{ filter: isAlive ? `drop-shadow(0 0 10px ${n.color})` : isSelected ? 'drop-shadow(0 0 8px #06B6D4)' : 'none' }}
+                          style={{ filter: isAlive ? `drop-shadow(0 0 12px ${n.color})` : isSelected ? 'drop-shadow(0 0 10px #06B6D4)' : 'none' }}
                         />
 
                         {/* Variable Icon */}
-                        <text x={n.x} y={n.y + 6} textAnchor="middle" fontSize="16">
+                        <text x={n.x} y={n.y + 7} textAnchor="middle" fontSize="18">
                           {n.icon}
                         </text>
 
-                        {/* Register Badge (Directly below circle) */}
+                        {/* Register Badge (Cleanly spaced below circle) */}
                         <rect
-                          x={n.x - 20}
-                          y={n.y + 25}
-                          width="40"
-                          height="18"
-                          rx="9"
+                          x={n.x - 22}
+                          y={n.y + 27}
+                          width="44"
+                          height="20"
+                          rx="10"
                           fill={n.color}
+                          stroke="#FFFFFF"
+                          strokeWidth="1"
                         />
                         <text
                           x={n.x}
-                          y={n.y + 37}
+                          y={n.y + 41}
                           textAnchor="middle"
-                          fontSize="10"
+                          fontSize="11"
                           fontWeight="bold"
                           fill="#FFFFFF"
                         >
                           {n.reg}
                         </text>
 
-                        {/* Node Label (Above circle with clear separation) */}
+                        {/* Node Label (Cleanly spaced above circle) */}
                         <text
                           x={n.x}
-                          y={n.y - 27}
+                          y={n.y - 30}
                           textAnchor="middle"
-                          fontSize="11"
+                          fontSize="13"
                           fontWeight="bold"
                           fill={isDark ? '#FFFFFF' : '#0F172A'}
                         >
@@ -881,15 +885,15 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 </svg>
               </div>
 
-              {/* Dedicated Graph Legend Bar (Placed completely OUTSIDE the SVG canvas - Zero Overlaps!) */}
-              <div className={`flex flex-wrap items-center justify-between text-xs font-mono p-3 rounded-2xl border ${
-                isDark ? 'bg-slate-900/80 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+              {/* Dedicated Graph Legend Bar (Completely OUTSIDE the SVG Canvas - Zero Overlaps Guaranteed!) */}
+              <div className={`flex flex-wrap items-center justify-between text-xs font-mono p-3.5 rounded-2xl border ${
+                isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-800 shadow-sm'
               }`}>
-                <span className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <span className="w-3.5 h-1.5 bg-red-500 rounded-full inline-block animate-pulse" />
-                  <span className="font-bold text-red-600 dark:text-red-400">Red Laser = Simultaneous Conflict</span>
-                </span>
-                <span className="text-slate-500 dark:text-slate-400 font-medium">Nodes colored by Assigned Hardware Register</span>
+                  <span className="font-extrabold text-red-700 dark:text-red-400">Red Laser = Simultaneous Conflict</span>
+                </div>
+                <span className="text-slate-600 dark:text-slate-400 font-bold">Nodes colored by Assigned Hardware Register</span>
               </div>
             </div>
 
@@ -900,12 +904,12 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-xs font-mono font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  <span className="text-sm font-mono font-black uppercase tracking-wider text-slate-900 dark:text-white">
                     4. What Actually Happens In The Computer (CPU Silicon vs RAM)
                   </span>
                 </div>
-                <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
-                  isDark ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-black border ${
+                  isDark ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-emerald-100 text-emerald-950 border-emerald-300'
                 }`}>
                   Physical Register File (0.3ns)
                 </span>
@@ -920,36 +924,36 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 }`}>
                   {/* CPU Chip Header */}
                   <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200 dark:border-slate-800">
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                    <span className="text-emerald-700 dark:text-emerald-400 font-black flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5" />
                       <span>CPU CORE SILICON (ALU & REGISTERS)</span>
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">3.3 GHz Turbo</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">3.3 GHz Turbo</span>
                   </div>
 
                   {/* ALU Banner */}
                   <div className={`p-2.5 rounded-xl border text-[11px] flex items-center justify-between ${
-                    isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-800 shadow-sm'
+                    isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
                   }`}>
-                    <span className="text-slate-500 dark:text-slate-400 font-bold">ACTIVE ALU OP:</span>
-                    <span className="text-cyan-700 dark:text-cyan-400 font-black animate-pulse">{currentInfo.aluOp}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-bold">ACTIVE ALU OP:</span>
+                    <span className="text-cyan-800 dark:text-cyan-400 font-black animate-pulse">{currentInfo.aluOp}</span>
                   </div>
 
                   {/* 3 Physical Registers */}
                   <div className="grid grid-cols-3 gap-2.5 pt-1">
                     {/* Register R1 */}
                     <div className={`p-3 rounded-xl border-2 text-center space-y-1 ${
-                      isDark ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-400 bg-cyan-50 shadow-sm'
+                      isDark ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-500 bg-cyan-50 shadow-sm'
                     }`}>
-                      <div className="text-[10px] text-cyan-700 dark:text-cyan-400 font-black">REGISTER R1</div>
+                      <div className="text-[10px] text-cyan-800 dark:text-cyan-400 font-black">REGISTER R1</div>
                       <div className="text-xs font-black text-slate-950 dark:text-white truncate">
                         {currentLine <= 5 ? '❤️ Health' : 'FREE'}
                       </div>
-                      <div className="text-[10px] font-mono text-cyan-800 dark:text-cyan-300 font-bold">
+                      <div className="text-[10px] font-mono text-cyan-900 dark:text-cyan-300 font-black">
                         {currentLine <= 5 ? '100 (0x64)' : 'EMPTY'}
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
-                        isDark ? 'bg-cyan-500/20 text-cyan-300' : 'bg-cyan-100 text-cyan-900 border border-cyan-300'
+                        isDark ? 'bg-cyan-500/20 text-cyan-300' : 'bg-cyan-200 text-cyan-950 border border-cyan-300 font-black'
                       }`}>
                         {currentLine <= 5 ? 'LOCKED' : 'IDLE'}
                       </span>
@@ -957,9 +961,9 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
 
                     {/* Register R2 */}
                     <div className={`p-3 rounded-xl border-2 text-center space-y-1 ${
-                      isDark ? 'border-purple-500/50 bg-purple-500/10' : 'border-purple-400 bg-purple-50 shadow-sm'
+                      isDark ? 'border-purple-500/50 bg-purple-500/10' : 'border-purple-500 bg-purple-50 shadow-sm'
                     }`}>
-                      <div className="text-[10px] text-purple-700 dark:text-purple-400 font-black">REGISTER R2</div>
+                      <div className="text-[10px] text-purple-800 dark:text-purple-400 font-black">REGISTER R2</div>
                       <div className="text-xs font-black text-slate-950 dark:text-white truncate">
                         {currentLine <= 3
                           ? '🪙 Coins'
@@ -967,7 +971,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                           ? '🛡️ Shield'
                           : '🎯 Score'}
                       </div>
-                      <div className="text-[10px] font-mono text-purple-800 dark:text-purple-300 font-bold">
+                      <div className="text-[10px] font-mono text-purple-900 dark:text-purple-300 font-black">
                         {currentLine <= 3
                           ? '50 (0x32)'
                           : registerBudget === 3
@@ -976,10 +980,10 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
                         currentLine >= 4 && registerBudget === 3
-                          ? 'bg-emerald-500 text-white animate-pulse'
+                          ? 'bg-emerald-600 text-white animate-pulse font-black'
                           : isDark
                           ? 'bg-purple-500/20 text-purple-300'
-                          : 'bg-purple-100 text-purple-900 border border-purple-300'
+                          : 'bg-purple-200 text-purple-950 border border-purple-300 font-black'
                       }`}>
                         {currentLine >= 4 && registerBudget === 3 ? '♻️ REUSED!' : 'OCCUPIED'}
                       </span>
@@ -990,10 +994,10 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       registerBudget === 3
                         ? isDark
                           ? 'border-emerald-500/50 bg-emerald-500/10'
-                          : 'border-emerald-400 bg-emerald-50 shadow-sm'
+                          : 'border-emerald-500 bg-emerald-50 shadow-sm'
                         : 'border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/40 opacity-40'
                     }`}>
-                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-black">
+                      <div className="text-[10px] text-emerald-800 dark:text-emerald-400 font-black">
                         {registerBudget === 3 ? 'REGISTER R3' : 'DISABLED'}
                       </div>
                       <div className="text-xs font-black text-slate-950 dark:text-white truncate">
@@ -1005,7 +1009,7 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                             : '⚡ Speed'
                           : 'OFFLINE'}
                       </div>
-                      <div className="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 font-bold">
+                      <div className="text-[10px] font-mono text-emerald-900 dark:text-emerald-300 font-black">
                         {registerBudget === 3
                           ? currentLine <= 4
                             ? currentLine >= 3
@@ -1016,10 +1020,10 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold inline-block ${
                         registerBudget === 3 && currentLine >= 5
-                          ? 'bg-emerald-500 text-white animate-pulse'
+                          ? 'bg-emerald-600 text-white animate-pulse font-black'
                           : isDark
                           ? 'bg-emerald-500/20 text-emerald-300'
-                          : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                          : 'bg-emerald-200 text-emerald-950 border border-emerald-300 font-black'
                       }`}>
                         {registerBudget === 3
                           ? currentLine >= 5
@@ -1036,42 +1040,42 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
                 {/* System RAM Stack Module (4 cols) */}
                 <div className={`md:col-span-4 p-4 rounded-2xl border-2 flex flex-col justify-between space-y-3 ${
                   isSpilledNow
-                    ? 'bg-red-500/15 border-red-500 text-red-900 dark:text-red-300 shadow-lg shadow-red-500/20 animate-pulse'
+                    ? 'bg-red-50 border-red-500 text-red-950 dark:bg-red-500/15 dark:border-red-500 dark:text-red-300 shadow-lg shadow-red-500/20 animate-pulse'
                     : isDark
                     ? 'bg-slate-950 border-slate-800 text-white'
-                    : 'bg-slate-50 border-slate-300 text-slate-900 shadow-sm'
+                    : 'bg-slate-100 border-slate-300 text-slate-900 shadow-sm'
                 }`}>
-                  <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-200 dark:border-slate-800">
-                    <span className={`font-bold flex items-center gap-1.5 ${isSpilledNow ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-300 dark:border-slate-800">
+                    <span className={`font-black flex items-center gap-1.5 ${isSpilledNow ? 'text-red-700 dark:text-red-400' : 'text-slate-800 dark:text-slate-400'}`}>
                       <HardDrive className="w-3.5 h-3.5" />
                       <span>SYSTEM DRAM RAM</span>
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">60ns</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-500 font-mono font-bold">60ns</span>
                   </div>
 
                   {isSpilledNow ? (
                     <div className="space-y-2 text-center py-1">
-                      <div className="inline-block p-2 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 animate-bounce">
+                      <div className="inline-block p-2 rounded-xl bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 animate-bounce">
                         <AlertTriangle className="w-5 h-5 mx-auto" />
                       </div>
-                      <div className="text-xs font-black text-red-700 dark:text-red-400">STACK SPILL: [rbp - 8]</div>
-                      <div className="text-[11px] text-red-900 dark:text-red-200 font-medium">
+                      <div className="text-xs font-black text-red-800 dark:text-red-400">STACK SPILL: [rbp - 8]</div>
+                      <div className="text-[11px] text-red-950 dark:text-red-200 font-medium leading-tight">
                         Shield stored in RAM because hardware has only 2 registers!
                       </div>
-                      <div className="p-1.5 rounded-lg bg-red-500 text-[10px] font-black text-white shadow-sm">
+                      <div className="p-1.5 rounded-lg bg-red-600 text-[10px] font-black text-white shadow-sm">
                         +200 CYCLE STALL PENALTY!
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-4 space-y-1.5">
-                      <div className="text-emerald-700 dark:text-emerald-400 text-xs font-bold">RAM IDLE (100% Cache Hit)</div>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                      <div className="text-emerald-800 dark:text-emerald-400 text-xs font-black">RAM IDLE (100% Cache Hit)</div>
+                      <p className="text-[11px] text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
                         Graph coloring keeps all variables inside 0.3ns CPU registers. Zero stalls to RAM!
                       </p>
                     </div>
                   )}
 
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center border-t border-slate-200 dark:border-slate-800/80 pt-1 font-mono">
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 text-center border-t border-slate-300 dark:border-slate-800/80 pt-1 font-mono font-bold">
                     {isSpilledNow ? '⚠️ Memory Bus Throttled' : '⚡ 0.3ns Lightning Speed'}
                   </div>
                 </div>
@@ -1096,8 +1100,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }}
               className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'simulation'
-                  ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 font-black'
+                  : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Zap className="w-4 h-4" />
@@ -1111,8 +1115,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }}
               className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'compiler-math'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 font-black'
+                  : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -1126,8 +1130,8 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
               }}
               className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'memory-speed'
-                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 font-black'
+                  : 'text-slate-700 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Flame className="w-4 h-4" />
@@ -1138,38 +1142,38 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
           {/* TAB 1: Core Concept */}
           {activeTab === 'simulation' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-              <div className={`p-5 rounded-2xl border space-y-2 ${
-                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-800 shadow-sm'
+              <div className={`p-5 rounded-2xl border-2 space-y-2 ${
+                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-900 shadow-sm'
               }`}>
                 <div className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xs font-mono font-black">1</span>
+                  <span className="w-6 h-6 rounded-lg bg-cyan-100 text-cyan-900 dark:bg-cyan-500/20 dark:text-cyan-400 flex items-center justify-center text-xs font-mono font-black">1</span>
                   <span>Infinite Code vs Finite Silicon</span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
                   Programmers write code with unlimited variables (`health`, `coins`, `shield`). But physical CPU chips only have 16 to 32 ultra-fast general purpose registers. How do we fit 100 variables into 32 pockets?
                 </p>
               </div>
 
-              <div className={`p-5 rounded-2xl border space-y-2 ${
-                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-800 shadow-sm'
+              <div className={`p-5 rounded-2xl border-2 space-y-2 ${
+                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-900 shadow-sm'
               }`}>
                 <div className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs font-mono font-black">2</span>
+                  <span className="w-6 h-6 rounded-lg bg-purple-100 text-purple-900 dark:bg-purple-500/20 dark:text-purple-400 flex items-center justify-center text-xs font-mono font-black">2</span>
                   <span>Liveness Analysis</span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
                   Variables only occupy space while alive. By calculating exact birth and death lines, the compiler proves that `coins` and `shield` never overlap, allowing them to share Register R2 with zero latency penalty.
                 </p>
               </div>
 
-              <div className={`p-5 rounded-2xl border space-y-2 ${
-                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-800 shadow-sm'
+              <div className={`p-5 rounded-2xl border-2 space-y-2 ${
+                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-900 shadow-sm'
               }`}>
                 <div className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-mono font-black">3</span>
+                  <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center text-xs font-mono font-black">3</span>
                   <span>Vertex Coloring = Register Safety</span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-sans font-medium">
                   Vertices are variables; edges connect variables alive at the same time. If a graph is k-colorable, then every variable can run in hardware registers without ever overwriting each other's data!
                 </p>
               </div>
@@ -1180,29 +1184,29 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
           {activeTab === 'compiler-math' && (
             <div className="space-y-4 text-xs font-mono">
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div className={`p-4 rounded-xl border space-y-1 ${
+                <div className={`p-4 rounded-xl border-2 space-y-1.5 ${
                   isDark ? 'bg-purple-500/10 border-purple-500/30 text-slate-300' : 'bg-purple-50 border-purple-200 text-purple-950 shadow-sm'
                 }`}>
-                  <div className="text-purple-700 dark:text-purple-400 font-bold uppercase">1. Build Interference Graph</div>
-                  <p className="text-slate-600 dark:text-slate-400 font-sans">Compute live ranges and draw conflict edges between any two variables alive simultaneously.</p>
+                  <div className="text-purple-800 dark:text-purple-400 font-black uppercase text-xs">1. Build Interference Graph</div>
+                  <p className="text-slate-700 dark:text-slate-400 font-sans font-medium">Compute live ranges and draw conflict edges between any two variables alive simultaneously.</p>
                 </div>
-                <div className={`p-4 rounded-xl border space-y-1 ${
+                <div className={`p-4 rounded-xl border-2 space-y-1.5 ${
                   isDark ? 'bg-purple-500/10 border-purple-500/30 text-slate-300' : 'bg-purple-50 border-purple-200 text-purple-950 shadow-sm'
                 }`}>
-                  <div className="text-purple-700 dark:text-purple-400 font-bold uppercase">2. Simplify (Kempe Heuristic)</div>
-                  <p className="text-slate-600 dark:text-slate-400 font-sans">Find node with degree &lt; k. Remove it and push onto stack. It is guaranteed colorable!</p>
+                  <div className="text-purple-800 dark:text-purple-400 font-black uppercase text-xs">2. Simplify (Kempe Heuristic)</div>
+                  <p className="text-slate-700 dark:text-slate-400 font-sans font-medium">Find node with degree &lt; k. Remove it and push onto stack. It is guaranteed colorable!</p>
                 </div>
-                <div className={`p-4 rounded-xl border space-y-1 ${
+                <div className={`p-4 rounded-xl border-2 space-y-1.5 ${
                   isDark ? 'bg-purple-500/10 border-purple-500/30 text-slate-300' : 'bg-purple-50 border-purple-200 text-purple-950 shadow-sm'
                 }`}>
-                  <div className="text-purple-700 dark:text-purple-400 font-bold uppercase">3. Spill Evaluation</div>
-                  <p className="text-slate-600 dark:text-slate-400 font-sans">If all nodes have degree &ge; k, compute spill cost = uses / degree. Evict lowest frequency candidate.</p>
+                  <div className="text-purple-800 dark:text-purple-400 font-black uppercase text-xs">3. Spill Evaluation</div>
+                  <p className="text-slate-700 dark:text-slate-400 font-sans font-medium">If all nodes have degree &ge; k, compute spill cost = uses / degree. Evict lowest frequency candidate.</p>
                 </div>
-                <div className={`p-4 rounded-xl border space-y-1 ${
+                <div className={`p-4 rounded-xl border-2 space-y-1.5 ${
                   isDark ? 'bg-purple-500/10 border-purple-500/30 text-slate-300' : 'bg-purple-50 border-purple-200 text-purple-950 shadow-sm'
                 }`}>
-                  <div className="text-purple-700 dark:text-purple-400 font-bold uppercase">4. Select Colors</div>
-                  <p className="text-slate-600 dark:text-slate-400 font-sans">Pop nodes from stack, assigning the first available physical register color not taken by neighbors.</p>
+                  <div className="text-purple-800 dark:text-purple-400 font-black uppercase text-xs">4. Select Colors</div>
+                  <p className="text-slate-700 dark:text-slate-400 font-sans font-medium">Pop nodes from stack, assigning the first available physical register color not taken by neighbors.</p>
                 </div>
               </div>
             </div>
@@ -1211,41 +1215,41 @@ export const UnifiedCompilerSiliconSimulation: React.FC<UnifiedSimulationProps> 
           {/* TAB 3: Memory Speed Hierarchy */}
           {activeTab === 'memory-speed' && (
             <div className="space-y-4 text-xs font-mono">
-              <div className={`p-5 rounded-2xl border space-y-3 ${
+              <div className={`p-5 rounded-2xl border-2 space-y-3 ${
                 isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-sm'
               }`}>
-                <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                <div className="text-sm font-black text-slate-900 dark:text-white flex items-center justify-between">
                   <span>Physical Latency Hierarchy (Why Registers Matter So Much)</span>
-                  <span className="text-red-600 dark:text-red-400 font-bold">200× Penalty!</span>
+                  <span className="text-red-700 dark:text-red-400 font-black">200× Penalty!</span>
                 </div>
 
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-cyan-700 dark:text-cyan-400 font-bold">CPU Register File (On-Die Flip-Flops)</span>
-                    <span className="text-cyan-700 dark:text-cyan-400 font-bold">0.3 ns (1 Clock Cycle) ⚡</span>
+                  <div className="flex items-center justify-between font-bold">
+                    <span className="text-cyan-800 dark:text-cyan-400">CPU Register File (On-Die Flip-Flops)</span>
+                    <span className="text-cyan-800 dark:text-cyan-400">0.3 ns (1 Clock Cycle) ⚡</span>
                   </div>
                   <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full bg-cyan-500 rounded-full" style={{ width: '1%' }} />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-purple-700 dark:text-purple-400 font-bold">L1 CPU Cache</span>
-                    <span className="text-purple-700 dark:text-purple-400 font-bold">1.0 ns (4 Clock Cycles)</span>
+                  <div className="flex items-center justify-between pt-2 font-bold">
+                    <span className="text-purple-800 dark:text-purple-400">L1 CPU Cache</span>
+                    <span className="text-purple-800 dark:text-purple-400">1.0 ns (4 Clock Cycles)</span>
                   </div>
                   <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full bg-purple-500 rounded-full" style={{ width: '3%' }} />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-red-600 dark:text-red-400 font-bold">System DRAM RAM (Memory Spill)</span>
-                    <span className="text-red-600 dark:text-red-400 font-bold">60.0 ns (200 Clock Cycles) 🐢</span>
+                  <div className="flex items-center justify-between pt-2 font-bold">
+                    <span className="text-red-700 dark:text-red-400">System DRAM RAM (Memory Spill)</span>
+                    <span className="text-red-700 dark:text-red-400">60.0 ns (200 Clock Cycles) 🐢</span>
                   </div>
                   <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full bg-red-500 rounded-full animate-pulse" style={{ width: '100%' }} />
                   </div>
                 </div>
 
-                <p className="text-slate-600 dark:text-slate-400 text-xs font-sans pt-2">
+                <p className="text-slate-700 dark:text-slate-400 text-xs font-sans pt-2 font-medium">
                   When registers run out, the CPU is forced to wait for hundreds of clock cycles for data to travel across external motherboard traces to RAM. Graph coloring maximizes in-register execution, keeping your phone and PC running at maximum speed.
                 </p>
               </div>
