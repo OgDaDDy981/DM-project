@@ -132,6 +132,16 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          <linearGradient id="laser-edge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06B6D4" />
+            <stop offset="50%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#8B5CF6" />
+          </linearGradient>
+          <linearGradient id="conflict-edge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#EF4444" />
+            <stop offset="50%" stopColor="#F43F5E" />
+            <stop offset="100%" stopColor="#EF4444" />
+          </linearGradient>
         </defs>
 
         {/* 1. EDGES */}
@@ -179,14 +189,14 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                   y2={v.y}
                   stroke={
                     conflicted
-                      ? '#EF4444'
+                      ? 'url(#conflict-edge-grad)'
                       : active
-                      ? '#06B6D4'
+                      ? 'url(#laser-edge-grad)'
                       : isDark
                       ? '#334155'
                       : '#CBD5E1'
                   }
-                  strokeWidth={conflicted ? 3.5 : active ? 3 : 2}
+                  strokeWidth={conflicted ? 4 : active ? 3.5 : 2}
                   strokeDasharray={conflicted ? '6 4' : 'none'}
                   className={`transition-colors duration-300 ${conflicted ? 'animate-laser-dash' : ''}`}
                 />
@@ -194,8 +204,8 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                 {/* Conflict badge on middle of edge if conflicted */}
                 {conflicted && (
                   <g transform={`translate(${(u.x + v.x) / 2}, ${(u.y + v.y) / 2})`}>
-                    <circle r={12} fill="#EF4444" className="animate-ping opacity-75" />
-                    <circle r={12} fill="#EF4444" />
+                    <circle r={13} fill="#EF4444" className="animate-ping opacity-75" />
+                    <circle r={11} fill="#EF4444" />
                     <text
                       textAnchor="middle"
                       dy="4"
@@ -203,7 +213,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                       fontSize="10"
                       fontWeight="bold"
                     >
-                      ✕
+                      ⚡
                     </text>
                   </g>
                 )}
@@ -258,6 +268,18 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                   onSelectNode(node.id);
                 }}
               >
+                {/* Radar pulse wave for active node inspection */}
+                {isCurrent && (
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={26}
+                    fill="none"
+                    stroke="#06B6D4"
+                    className="animate-radar-wave"
+                  />
+                )}
+
                 {/* Highlight Halo for current node */}
                 {isCurrent && (
                   <circle
@@ -294,7 +316,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                     cy={node.y}
                     r={34}
                     fill={register.color}
-                    opacity={0.25}
+                    opacity={0.28}
                     className="animate-pulse"
                   />
                 )}
@@ -350,9 +372,25 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                   {labelDisplay}
                 </text>
 
+                {/* Precision coordinate badge if current/selected */}
+                {isCurrent && (
+                  <text
+                    x={node.x}
+                    y={node.y + 52}
+                    textAnchor="middle"
+                    fill="#06B6D4"
+                    fontSize="9"
+                    fontFamily="monospace"
+                    fontWeight="bold"
+                    pointerEvents="none"
+                  >
+                    ({node.x}, {node.y})
+                  </text>
+                )}
+
                 {/* Assigned Register Pill Badge Above Node */}
                 {register && (
-                  <g transform={`translate(${node.x}, ${node.y - 34})`}>
+                  <g transform={`translate(${node.x}, ${node.y - 34})`} className="animate-quantum-lock">
                     <rect
                       x="-22"
                       y="-10"
@@ -370,7 +408,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                       fill={register.color}
                       fontSize="10"
                       fontWeight="bold"
-                      fontFamily="system-ui, sans-serif"
+                      fontFamily="monospace"
                     >
                       {register.name}
                     </text>
@@ -379,7 +417,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
 
                 {/* Spilled Pill Badge */}
                 {isSpilled && (
-                  <g transform={`translate(${node.x}, ${node.y - 34})`}>
+                  <g transform={`translate(${node.x}, ${node.y - 34})`} className="animate-pulse">
                     <rect
                       x="-26"
                       y="-10"
@@ -395,9 +433,21 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                       fill="#FFFFFF"
                       fontSize="9"
                       fontWeight="bold"
+                      fontFamily="monospace"
                     >
                       SPILL ⤓
                     </text>
+                    {/* Downward RAM chute indicator line */}
+                    <line
+                      x1="0"
+                      y1="12"
+                      x2="0"
+                      y2="30"
+                      stroke="#EF4444"
+                      strokeWidth="2"
+                      strokeDasharray="2 2"
+                      className="animate-spill-drop"
+                    />
                   </g>
                 )}
               </g>

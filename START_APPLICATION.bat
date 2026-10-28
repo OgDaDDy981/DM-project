@@ -1,31 +1,70 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 cd /d "%~dp0"
-title Graph Coloring - CPU Register Allocation in Compilers
-color 0B
+title Graph Coloring - CPU Register Allocation
 
+color 0B
+cls
 echo =====================================================================
 echo    GRAPH COLORING FOR CPU REGISTER ALLOCATION IN COMPILERS
-echo    Interactive Educational Web Application
+echo    Interactive Scientific Visualization and Educational Web App
 echo =====================================================================
 echo.
 
-:: 1. Check Node.js
+:: 1. Check if Node.js is installed
 where node >nul 2>nul
-if errorlevel 1 goto :NO_NODE
+if errorlevel 1 (
+    color 0C
+    echo [ERROR] Node.js was not found in your system PATH.
+    echo Please download and install Node.js from: https://nodejs.org
+    echo.
+    pause
+    exit /b 1
+)
 
-:: 2. Check node_modules
-if not exist "node_modules" goto :INSTALL_DEPS
+:: 2. Check if node_modules exists
+if not exist "node_modules\" (
+    echo [INFO] First-time setup: Installing dependencies...
+    echo This may take a minute. Please wait...
+    echo.
+    call npm.cmd install
+    if errorlevel 1 (
+        color 0C
+        echo [ERROR] npm install failed. Please check your internet connection.
+        pause
+        exit /b 1
+    )
+    echo [SUCCESS] Dependencies installed successfully.
+    echo.
+)
 
-:START_APP
-echo [1/2] Launching your web browser...
-start http://localhost:5173/
+:: 3. Check if server is already running on port 5173
+netstat -ano | findstr ":5173 " >nul 2>nul
+if not errorlevel 1 (
+    echo [INFO] Server is already active on port 5173.
+    echo [INFO] Opening your browser to: http://localhost:5173/DM-project/
+    start "" "http://localhost:5173/DM-project/"
+    echo.
+    echo ---------------------------------------------------------------------
+    echo   The application is live in your browser.
+    echo   You can close this window at any time.
+    echo ---------------------------------------------------------------------
+    echo.
+    pause
+    exit /b 0
+)
 
-echo [2/2] Starting local application server on port 5173...
+:: 4. Launch browser after a short delay to ensure Vite is ready
+echo [1/2] Launching browser to http://localhost:5173/DM-project/ ...
+start /b "" cmd /c "timeout /t 2 >nul & start "" "http://localhost:5173/DM-project/""
+
+echo [2/2] Starting local Vite web server...
 echo.
 echo ---------------------------------------------------------------------
-echo   Application is running! You can view it in your browser.
-echo   Press Ctrl+C in this command window to stop the server.
+echo   Application URL: http://localhost:5173/DM-project/
+echo.
+echo   Keep this window open while exploring the application.
+echo   To stop the server, press Ctrl+C or close this window.
 echo ---------------------------------------------------------------------
 echo.
 
@@ -35,24 +74,3 @@ echo.
 echo Server stopped.
 pause
 exit /b 0
-
-:INSTALL_DEPS
-echo [INFO] node_modules not found. Installing dependencies first...
-call npm.cmd install
-if errorlevel 1 goto :INSTALL_ERROR
-goto :START_APP
-
-:NO_NODE
-color 0C
-echo [ERROR] Node.js was not found in your PATH.
-echo Please download and install Node.js from: https://nodejs.org
-echo.
-pause
-exit /b 1
-
-:INSTALL_ERROR
-color 0C
-echo [ERROR] npm install failed. Please check your internet connection.
-echo.
-pause
-exit /b 1

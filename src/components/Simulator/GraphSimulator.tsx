@@ -53,6 +53,24 @@ export const GraphSimulator: React.FC<GraphSimulatorProps> = ({
     setSelectedNodeId(null);
   };
 
+  // Play sound for a specific step
+  const playSoundForStep = (step: AlgorithmStep) => {
+    if (!step) return;
+    if (step.type === 'assign_register' && step.assignedRegister) {
+      sounds.playRegisterAssign(step.assignedRegister);
+    } else if (step.type === 'spill') {
+      sounds.playSpill();
+    } else if (step.type === 'inspect_neighbors') {
+      sounds.playScan();
+    } else if (step.type === 'conflict') {
+      sounds.playConflict();
+    } else if (step.type === 'complete') {
+      sounds.playVictory();
+    } else {
+      sounds.playPop();
+    }
+  };
+
   // Playback timer
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
@@ -65,15 +83,18 @@ export const GraphSimulator: React.FC<GraphSimulatorProps> = ({
             sounds.playVictory();
             return prev;
           }
-          sounds.playChime(1.1);
-          return prev + 1;
+          const nextIndex = prev + 1;
+          if (steps[nextIndex]) {
+            playSoundForStep(steps[nextIndex]);
+          }
+          return nextIndex;
         });
       }, delay);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isPlaying, speed, steps.length]);
+  }, [isPlaying, speed, steps]);
 
   const handleTogglePlay = () => {
     if (currentStepIndex >= steps.length - 1) {
@@ -87,22 +108,52 @@ export const GraphSimulator: React.FC<GraphSimulatorProps> = ({
   const handleNextStep = () => {
     setIsPlaying(false);
     if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
+      const nextIndex = currentStepIndex + 1;
+      setCurrentStepIndex(nextIndex);
+      if (steps[nextIndex]) {
+        playSoundForStep(steps[nextIndex]);
+      }
     }
   };
 
   const handlePrevStep = () => {
     setIsPlaying(false);
     if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
+      const prevIndex = currentStepIndex - 1;
+      setCurrentStepIndex(prevIndex);
+      sounds.playPop();
     }
   };
 
   const handleReset = () => {
+    sounds.playPop();
     setIsPlaying(false);
     setCurrentStepIndex(0);
     setSelectedNodeId(null);
   };
+
+  // Keyboard navigation for simulator
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleTogglePlay();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        handleNextStep();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevStep();
+      } else if (e.key === 'r' || e.key === 'R') {
+        handleReset();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStepIndex, steps, isPlaying]);
 
   // Auto layout arranging nodes in a clean circular polygon
   const handleAutoLayout = () => {

@@ -7,6 +7,9 @@ import {
   RotateCcw,
   Play,
   Clock,
+  AlertTriangle,
+  Calculator,
+  Activity,
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
@@ -24,38 +27,45 @@ export const SpillingDemo: React.FC<SpillingDemoProps> = ({
 
   const steps = [
     {
-      title: 'Step 1: 3 Items Clash At Once',
-      desc: '3 mutually clashing variables (Health, Coins, Shield) approach the CPU.',
-      badge: 'Check Clashes',
+      title: 'Step 1: 3 Mutually Conflicting Variables',
+      desc: '3 mutually clashing variables (Health, Coins, Shield) are all alive at the same execution cycle.',
+      badge: 'Register Pressure Check',
     },
     {
-      title: 'Step 2: Overflow Warning! 🚨',
-      desc: 'All 3 items are needed at the same time! But the CPU only has 2 fast pockets. It is mathematically impossible to color them without a collision!',
+      title: 'Step 2: Capacity Exhaustion! 🚨',
+      desc: 'All 3 items are needed simultaneously! But the hardware budget is strictly k = 2 registers. By pigeonhole principle & K3 chromatic number χ(G)=3, a spill is mathematically unavoidable!',
       badge: 'Register Overflow',
     },
     {
-      title: 'Step 3: Choosing Who Gets Evicted',
-      desc: 'The computer checks which variable is used least often. "Shield" is chosen to be evicted to the slow basement storage (RAM).',
-      badge: 'Candidate Picked',
+      title: 'Step 3: Chaitin Heuristic Cost Evaluation',
+      desc: 'The compiler computes SpillCost(v) for each candidate. "Shield" has the lowest access frequency (cost = 1.0), so it is selected for stack eviction.',
+      badge: 'Heuristic Selected',
     },
     {
-      title: 'Step 4: Dropped Into the Slow Basement (RAM)',
-      desc: 'Variable "Shield" is sent down the chute into System RAM. It is safe, but accessing it will take 200× longer!',
-      badge: 'Evacuated to RAM',
+      title: 'Step 4: Eviction Down the Chute to RAM',
+      desc: 'Variable "Shield" is evicted from the fast register file into System DRAM stack memory [rbp - 8]. An animated spill chute stores its value.',
+      badge: 'Evacuated to Stack',
     },
     {
-      title: 'Step 5: Remaining 2 Fit at Full Speed',
-      desc: 'With Shield in the basement, Health and Coins fit smoothly into Pocket 1 and Pocket 2! Whenever Shield is needed, the CPU must stop and wait for RAM.',
-      badge: 'Allocation Complete',
+      title: 'Step 5: High-Speed Execution + 200× Memory Penalty',
+      desc: 'Health and Coins run at 0.3ns inside R1 and R2. However, whenever Shield is read, the CPU must stall for ~200 clock cycles to fetch from RAM!',
+      badge: 'Spill Complete',
     },
   ];
 
+  const spillCandidates = [
+    { id: 'health', name: 'Health', icon: '❤️', uses: 5, loopWeight: 2, deg: 2, cost: 5.0, status: 'STAYS IN R1' },
+    { id: 'coins', name: 'Coins', icon: '🪙', uses: 4, loopWeight: 2, deg: 2, cost: 4.0, status: 'STAYS IN R2' },
+    { id: 'shield', name: 'Shield', icon: '🛡️', uses: 1, loopWeight: 1, deg: 2, cost: 0.5, status: 'EVICTED TO RAM (Lowest Cost!)' },
+  ];
+
   const handleNext = () => {
-    sounds.playPop();
     setCurrentStep((prev) => {
       const next = Math.min(steps.length - 1, prev + 1);
-      if (next === 1 || next === 3) sounds.playConflict();
-      if (next === 4) sounds.playVictory();
+      if (next === 1) sounds.playConflict();
+      else if (next === 3) sounds.playSpill();
+      else if (next === 4) sounds.playVictory();
+      else sounds.playPop();
       return next;
     });
   };
@@ -192,42 +202,75 @@ export const SpillingDemo: React.FC<SpillingDemoProps> = ({
           </div>
 
           {/* Dynamic Graphic Arena */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* Left: CPU Registers & Memory Stack */}
+            {/* Left: CPU Registers, Eviction Chute & DRAM Stack */}
             <div className="lg:col-span-7 space-y-6">
               
+              {/* Register Pressure Meter */}
+              <div className={`p-4 rounded-2xl border font-mono text-xs ${
+                isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-100 border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between mb-1.5 font-bold">
+                  <span className="flex items-center gap-1.5 text-slate-300">
+                    <Activity className="w-4 h-4 text-amber-400" />
+                    <span>Real-Time Register Pressure</span>
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                    availableRegisters === 2 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-emerald-500/20 text-emerald-400'
+                  }`}>
+                    {availableRegisters === 2 ? '150% PRESSURE • OVERFLOW' : '100% PRESSURE • STABLE'}
+                  </span>
+                </div>
+                <div className="h-3.5 w-full rounded-full bg-slate-800 overflow-hidden relative">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      availableRegisters === 2 ? 'bg-gradient-to-r from-amber-500 to-red-500 w-full' : 'bg-emerald-500 w-2/3'
+                    }`}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>3 Active Variables (K3 Clique)</span>
+                  <span>Budget k = {availableRegisters} Hardware Slots</span>
+                </div>
+              </div>
+
               {/* CPU Core & Register Bank */}
-              <div className={`p-6 rounded-3xl border-2 space-y-3 ${
+              <div className={`p-6 rounded-3xl border-2 space-y-3 relative overflow-hidden ${
                 isDark ? 'bg-slate-900 border-cyan-500/40' : 'bg-cyan-50/50 border-cyan-300'
               }`}>
+                <div className="hud-corner-tl opacity-75" />
+                <div className="hud-corner-tr opacity-75" />
+
                 <div className="flex items-center justify-between text-xs font-mono font-bold">
                   <span className="text-slate-900 dark:text-white flex items-center gap-1.5 text-sm">
-                    <Cpu className="w-5 h-5 text-cyan-500" />
-                    <span>CPU FAST POCKETS (Lightning Silicon)</span>
+                    <Cpu className="w-5 h-5 text-cyan-400" />
+                    <span>L1 CPU REGISTER FILE (Zero Latency Silicon)</span>
                   </span>
-                  <span className="text-emerald-500 font-bold">0.3 ns Speed</span>
+                  <span className="text-emerald-400 font-black">0.3 ns • 1 Clock Cycle</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-2 gap-4 pt-2 font-mono">
                   {/* Register R1 */}
                   <div className={`p-5 rounded-2xl border-2 text-center transition-all ${
                     isDark ? 'bg-slate-950 border-cyan-500/40' : 'bg-white border-cyan-300 shadow-sm'
                   }`}>
-                    <div className="text-xs font-mono text-cyan-500 font-bold">POCKET 1 (R1)</div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                      {currentStep >= 4 ? '❤️ Health' : currentStep >= 1 ? '❤️ Health' : 'Empty'}
+                    <div className="text-xs text-cyan-400 font-bold">HARDWARE SLOT R1</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                      {currentStep >= 1 ? '❤️ Health' : 'Empty'}
                     </div>
+                    <div className="text-[10px] text-slate-400 mt-1">100% Core Speed</div>
                   </div>
 
                   {/* Register R2 */}
                   <div className={`p-5 rounded-2xl border-2 text-center transition-all ${
                     isDark ? 'bg-slate-950 border-purple-500/40' : 'bg-white border-purple-300 shadow-sm'
                   }`}>
-                    <div className="text-xs font-mono text-purple-500 font-bold">POCKET 2 (R2)</div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                      {currentStep >= 4 ? '🪙 Coins' : currentStep >= 1 ? '🪙 Coins' : 'Empty'}
+                    <div className="text-xs text-purple-400 font-bold">HARDWARE SLOT R2</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                      {currentStep >= 1 ? '🪙 Coins' : 'Empty'}
                     </div>
+                    <div className="text-[10px] text-slate-400 mt-1">100% Core Speed</div>
                   </div>
                 </div>
               </div>
@@ -241,39 +284,42 @@ export const SpillingDemo: React.FC<SpillingDemoProps> = ({
                     }`}
                   />
                   <span>
-                    {currentStep >= 3 ? 'SPILL CHUTE DOWN TO SLOW RAM' : 'Standby Spill Chute'}
+                    {currentStep >= 3 ? 'EVICTION BUS: SPILL DOWN TO SYSTEM RAM' : 'Standby Spill Chute (Awaiting Memory Overflow)'}
                   </span>
                 </div>
               </div>
 
-              {/* Main Memory Stack (RAM) */}
-              <div className={`p-6 rounded-3xl border-2 space-y-3 ${
+              {/* Main Memory Stack (DRAM) */}
+              <div className={`p-6 rounded-3xl border-2 space-y-3 relative overflow-hidden ${
                 isDark ? 'bg-slate-900 border-red-500/40' : 'bg-red-50/50 border-red-300'
               }`}>
+                <div className="hud-corner-bl opacity-75" />
+                <div className="hud-corner-br opacity-75" />
+
                 <div className="flex items-center justify-between text-xs font-mono font-bold">
-                  <span className="text-red-500 flex items-center gap-1.5 text-sm">
+                  <span className="text-red-400 flex items-center gap-1.5 text-sm">
                     <HardDrive className="w-5 h-5 text-red-500" />
-                    <span>SYSTEM RAM (The Slow Basement)</span>
+                    <span>SYSTEM DRAM STACK (Memory Bus)</span>
                   </span>
-                  <span className="text-red-500 font-bold">70 ns Latency (200× Penalty)</span>
+                  <span className="text-red-400 font-black">70 ns • 200× Latency Penalty</span>
                 </div>
 
-                <div className={`p-5 rounded-2xl border flex items-center justify-between font-mono text-xs ${
+                <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between font-mono text-xs gap-3 ${
                   isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
                 }`}>
                   <div>
-                    <span className="text-slate-400 font-bold">Stack Address [RBP - 8]: </span>
+                    <span className="text-slate-400 font-bold">Stack Offset [rbp - 0x08]: </span>
                     {currentStep >= 3 ? (
-                      <span className="text-red-500 font-black text-base ml-2 animate-pulse">
-                        🛡️ Shield (Spilled Down Here!)
+                      <span className="text-red-400 font-black text-sm ml-2 animate-pulse">
+                        🛡️ Shield (Evicted from Register File!)
                       </span>
                     ) : (
-                      <span className="text-slate-400 italic ml-2">Empty Stack Frame</span>
+                      <span className="text-slate-500 italic ml-2">Empty Stack Frame Slot</span>
                     )}
                   </div>
                   {currentStep >= 3 && (
-                    <span className="px-2.5 py-1 rounded-full bg-red-500/20 text-red-500 font-bold text-[10px]">
-                      Requires Slow LOAD/STORE
+                    <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 font-bold text-[10px] border border-red-500/40">
+                      Inserted: MOV [rbp - 8], r2
                     </span>
                   )}
                 </div>
@@ -281,26 +327,68 @@ export const SpillingDemo: React.FC<SpillingDemoProps> = ({
 
             </div>
 
-            {/* Right: Explanation & Cost Comparison */}
+            {/* Right: Chaitin Cost Evaluation & Latency Tachometer */}
             <div className="lg:col-span-5 space-y-5">
               
               <div className={`p-6 rounded-3xl border-2 space-y-3 ${
                 isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'
               }`}>
-                <h4 className="text-lg font-black text-slate-900 dark:text-white">{steps[currentStep].title}</h4>
+                <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <span>{steps[currentStep].title}</span>
+                </h4>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                   {steps[currentStep].desc}
                 </p>
               </div>
 
-              {/* Tradeoff Alert Card */}
+              {/* Chaitin Mathematical Cost Formula Table */}
+              <div className={`p-5 rounded-3xl border space-y-3 font-mono text-xs ${
+                isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center gap-2 text-cyan-400 font-bold uppercase">
+                  <Calculator className="w-4 h-4" />
+                  <span>Chaitin Spill Cost Heuristic:</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-950 text-[11px] text-slate-300 border border-slate-800 text-center font-bold">
+                  SpillCost(v) = (Uses × LoopWeight) / Degree(v)
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  {spillCandidates.map((c) => (
+                    <div
+                      key={c.id}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                        c.id === 'shield' && currentStep >= 2
+                          ? 'bg-red-500/15 border-red-500/40 text-red-300 font-bold'
+                          : 'bg-slate-950/60 border-slate-800/80 text-slate-300'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span>{c.icon}</span>
+                        <span>{c.name}</span>
+                      </span>
+                      <span className="text-slate-400">Cost: {c.cost}</span>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                        c.id === 'shield' && currentStep >= 2 ? 'bg-red-500/20 text-red-400' : 'text-slate-500'
+                      }`}>
+                        {c.id === 'shield' && currentStep >= 2 ? 'EVICT' : 'KEEP'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Memory Penalty Comparison Card */}
               <div className={`p-5 rounded-2xl border flex items-start gap-3.5 ${
                 isDark ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-950'
               }`}>
-                <Clock className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm leading-relaxed font-medium">
-                  <strong className="font-bold">The Takeaway:</strong> Spilling prevents computer crashes, but it makes the CPU crawl! That's why smart graph coloring is the most valuable part of any modern compiler!
-                </p>
+                <Clock className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+                <div className="text-xs sm:text-sm leading-relaxed font-medium">
+                  <strong className="font-bold text-amber-300">The 200× Stall Penalty: </strong>
+                  Spilling prevents compiler crashes, but each memory fetch costs ~200 CPU cycles.
+                  In our loop, spilling "Shield" creates a <span className="font-bold text-red-400">+400 clock cycle penalty</span>!
+                </div>
               </div>
 
             </div>

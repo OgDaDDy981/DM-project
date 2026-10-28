@@ -6,6 +6,13 @@ import {
   Maximize2,
   Minimize2,
   RotateCcw,
+  Zap,
+  Users,
+  Cpu,
+  Layers,
+  AlertTriangle,
+  Award,
+  Sparkles,
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
@@ -28,15 +35,30 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       number: 1,
       title: 'The Real-World Dilemma: Too Many Variables, Too Few Pockets',
       tag: 'Hardware Reality',
-      bigHeadline: 'Why Can\'t the CPU Just Store Everything?',
+      bigHeadline: 'Why Can\'t the CPU Just Store Everything in Registers?',
       bulletPoints: [
         'Programmers freely create hundreds of variables (scores, positions, video pixels, calculations).',
         'Physical CPU silicon only has 8 to 16 ultra-fast general-purpose registers.',
-        'Registers read data in 0.3 nanoseconds (1 cycle directly inside the CPU ALU).',
-        'System RAM is 200× slower (~70 nanoseconds). If variables drop to RAM, execution stalls!',
+        'Registers read data in 0.3 nanoseconds (1 clock cycle directly inside the CPU ALU).',
+        'System RAM is 200× slower (~70 nanoseconds). If variables drop to RAM, the execution pipeline stalls!',
       ],
       takeaway: 'THE CORE QUESTION: How can a compiler pack 100 variables into only 8 physical registers?',
       visualBadge: '1 Cycle vs 200 Cycles',
+      icon: <Zap className="w-5 h-5 text-cyan-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 font-mono text-xs">
+          <div className="flex justify-between items-center text-cyan-400 font-bold">
+            <span>CPU Register</span>
+            <span>0.3 ns (1 cycle)</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-cyan-400" />
+          <div className="flex justify-between items-center text-red-400 font-bold pt-2">
+            <span>System RAM</span>
+            <span>70.0 ns (200 cycles)</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-red-500" />
+        </div>
+      ),
     },
     {
       number: 2,
@@ -44,13 +66,23 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       tag: 'The Secret Discovery',
       bigHeadline: 'Variables Don\'t Live Forever!',
       bulletPoints: [
-        'A variable is only "ALIVE" from when it is computed until its last read.',
+        'A variable is only "ALIVE" from when it is computed until its final read.',
         'Like workers sharing an office desk: Alice works from 9am to 1pm, Diana arrives at 1pm.',
         'Because their shifts never overlap, Alice and Diana can share the EXACT same desk!',
         'In a program: Variables active at disjoint times share the exact same physical CPU register.',
       ],
       takeaway: 'GOLDEN PRINCIPLE: Different Variables. Different Moments. Same Hardware Register.',
       visualBadge: 'Zero Data Collisions',
+      icon: <Users className="w-5 h-5 text-purple-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-emerald-400 font-bold">Desk 1 (Cyan / R1):</div>
+          <div className="text-slate-300">Alice (9:00–13:00) ➔ Diana (13:00–17:00)</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Zero overlap = 100% safe reuse. No extra hardware needed!
+          </div>
+        </div>
+      ),
     },
     {
       number: 3,
@@ -65,6 +97,16 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       ],
       takeaway: 'A valid graph vertex coloring guarantees ZERO data collisions on physical CPU silicon!',
       visualBadge: 'c: V → {R1, R2, ..., Rk}',
+      icon: <Layers className="w-5 h-5 text-emerald-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-cyan-400 font-bold">Invariance Theorem:</div>
+          <div className="text-slate-300">∀ &#123;u, v&#125; ∈ E, Color(u) ≠ Color(v)</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Graph coloring transforms scheduling into discrete math.
+          </div>
+        </div>
+      ),
     },
     {
       number: 4,
@@ -79,6 +121,16 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       ],
       takeaway: 'Degree-saturation ordering maximizes register reuse with minimal overhead.',
       visualBadge: 'O(|V| + |E|) Execution',
+      icon: <Cpu className="w-5 h-5 text-cyan-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-purple-400 font-bold">Chaitin Simplification:</div>
+          <div className="text-slate-300">If deg(v) &lt; k, push v to stack.</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Colors popped in reverse order with zero backtracking.
+          </div>
+        </div>
+      ),
     },
     {
       number: 5,
@@ -93,6 +145,16 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       ],
       takeaway: 'If available hardware registers k < χ(G), memory spilling is mathematically unavoidable!',
       visualBadge: 'χ(G) ≥ ω(G) • NP-Complete',
+      icon: <AlertTriangle className="w-5 h-5 text-amber-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-amber-400 font-bold">Clique Lower Bound:</div>
+          <div className="text-slate-300">χ(G) ≥ ω(G) = 3</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Complete triangle K₃ forces 3 physical registers.
+          </div>
+        </div>
+      ),
     },
     {
       number: 6,
@@ -107,6 +169,16 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       ],
       takeaway: 'Compilers carefully evaluate loop-nesting weights to spill the coldest variables.',
       visualBadge: 'Spill to [RBP - 8]',
+      icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-red-400 font-bold">Stack Offset Addressing:</div>
+          <div className="text-slate-300">MOV [rbp - 0x08], shield</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Pushed to DRAM memory frame when registers overflow.
+          </div>
+        </div>
+      ),
     },
     {
       number: 7,
@@ -121,6 +193,16 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       ],
       takeaway: 'FINAL TAKEAWAY: Discrete Mathematics is the invisible engine powering the digital universe!',
       visualBadge: 'Chaitin (1981) • Briggs (1994)',
+      icon: <Award className="w-5 h-5 text-yellow-400" />,
+      miniVisual: (
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono text-xs">
+          <div className="text-yellow-400 font-bold">Industrial Impact:</div>
+          <div className="text-slate-300">LLVM, GCC, Rustc, Clang, HotSpot</div>
+          <div className="text-[11px] text-slate-400 pt-1">
+            Running on billions of processors every microsecond.
+          </div>
+        </div>
+      ),
     },
   ];
 
@@ -163,15 +245,17 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex flex-col select-none overflow-hidden ${
-      isDark ? 'bg-[#080B14] text-white' : 'bg-slate-900 text-white'
-    }`}>
-      
+    <div
+      className={`fixed inset-0 z-50 flex flex-col select-none overflow-hidden ${
+        isDark ? 'bg-[#080B14] text-white' : 'bg-slate-900 text-white'
+      }`}
+    >
       {/* Top Presenter Bar */}
       <div className="h-16 px-6 border-b border-slate-800 bg-slate-950/90 flex items-center justify-between backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-xs font-mono font-black tracking-wider">
-            PROJECTOR SLIDES
+          <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-xs font-mono font-black tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>PROJECTOR SLIDES</span>
           </span>
           <span className="text-sm font-mono text-slate-400">
             Slide {slideIndex + 1} of {slides.length}
@@ -201,13 +285,13 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
       </div>
 
       {/* Main Slide Content */}
-      <div className="flex-1 max-w-5xl w-full mx-auto px-6 py-10 flex flex-col justify-center space-y-8 overflow-y-auto">
-        
+      <div className="flex-1 max-w-5xl w-full mx-auto px-6 py-8 flex flex-col justify-center space-y-6 overflow-y-auto">
         {/* Slide Category Header */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest">
-              {currentSlide.tag}
+            <span className="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+              {currentSlide.icon}
+              <span>{currentSlide.tag}</span>
             </span>
             <span className="text-xs text-slate-500">•</span>
             <span className="text-xs font-mono text-slate-400">{currentSlide.title}</span>
@@ -218,31 +302,39 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
         </div>
 
         {/* Big Slide Headline */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white leading-tight">
           {currentSlide.bigHeadline}
         </h2>
 
-        {/* Bullet Points */}
-        <div className="space-y-4 pt-2">
-          {currentSlide.bulletPoints.map((point, idx) => (
-            <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
-              <div className="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
-                {idx + 1}
+        {/* Bullet Points with Mini-Visual Side-by-Side */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-8 space-y-3">
+            {currentSlide.bulletPoints.map((point, idx) => (
+              <div
+                key={idx}
+                className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md"
+              >
+                <div className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                  {idx + 1}
+                </div>
+                <p className="text-sm sm:text-base text-slate-200 font-medium leading-relaxed">
+                  {point}
+                </p>
               </div>
-              <p className="text-base sm:text-lg text-slate-200 font-medium leading-relaxed">
-                {point}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          <div className="md:col-span-4">
+            {currentSlide.miniVisual}
+          </div>
         </div>
 
         {/* Core Takeaway */}
-        <div className="p-5 rounded-3xl bg-gradient-to-r from-cyan-500/15 via-purple-500/20 to-pink-500/15 border-2 border-cyan-500/40">
-          <p className="text-sm sm:text-base font-black text-cyan-400 leading-snug">
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-500/15 via-purple-500/20 to-pink-500/15 border-2 border-cyan-500/40">
+          <p className="text-xs sm:text-sm font-black text-cyan-400 leading-snug">
             💡 {currentSlide.takeaway}
           </p>
         </div>
-
       </div>
 
       {/* Bottom Presenter Controls */}
@@ -306,7 +398,6 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
           </button>
         </div>
       </div>
-
     </div>
   );
 };

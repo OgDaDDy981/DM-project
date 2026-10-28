@@ -88,8 +88,15 @@ export const RegisterBankView: React.FC<RegisterBankViewProps> = ({
     let timer: ReturnType<typeof setInterval> | null = null;
     if (isPlayingTimeline) {
       timer = setInterval(() => {
-        sounds.playPop();
-        setCurrentLine((prev) => (prev >= 6 ? 1 : prev + 1));
+        setCurrentLine((prev) => {
+          const next = prev >= 6 ? 1 : prev + 1;
+          if (next === 4 || next === 5) {
+            sounds.playHandoff();
+          } else {
+            sounds.playPop();
+          }
+          return next;
+        });
       }, 1600);
     }
     return () => {
@@ -275,6 +282,79 @@ export const RegisterBankView: React.FC<RegisterBankViewProps> = ({
                 <Clock className="w-4 h-4 text-purple-500" />
                 <span>Program Execution Timeline (Click any line to scrub)</span>
               </h4>
+            </div>
+
+            {/* Multi-Track Live-Variable Timeline Gantt Chart */}
+            <div className={`p-5 rounded-2xl border space-y-3 font-mono ${
+              isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200 dark:border-slate-800 text-slate-400">
+                <span className="font-bold uppercase tracking-wider">Silicon Liveness Tracks</span>
+                <span className="text-cyan-400 font-bold">Scanning Line {currentLine} of 6</span>
+              </div>
+
+              {/* Variable Tracks with Active Playhead */}
+              <div className="space-y-2.5 relative">
+                {/* Vertical Playhead Line */}
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 z-10 transition-all duration-300 pointer-events-none shadow-sm shadow-cyan-400/50"
+                  style={{
+                    left: `${((currentLine - 1) / 5) * 100}%`,
+                  }}
+                >
+                  <div className="absolute -top-3.5 -left-3.5 px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 text-[9px] font-black shadow-md">
+                    L{currentLine}
+                  </div>
+                </div>
+
+                {[
+                  { id: 'a', name: 'a (Health)', start: 1, end: 5, reg: 'R1 (Cyan)', color: '#06B6D4' },
+                  { id: 'b', name: 'b (Coins)', start: 2, end: 3, reg: 'R2 (Purple)', color: '#8B5CF6' },
+                  { id: 'c', name: 'c (Score)', start: 3, end: 4, reg: 'R3 (Lime)', color: '#10B981' },
+                  { id: 'd', name: 'd (Shield)', start: 4, end: 6, reg: 'R2 (Reused!)', color: '#8B5CF6' },
+                  { id: 'e', name: 'e (Speed)', start: 5, end: 6, reg: 'R3 (Reused!)', color: '#10B981' },
+                ].map((track) => {
+                  const isAlive = currentLine >= track.start && currentLine <= track.end;
+                  const isDead = currentLine > track.end;
+                  const leftPct = ((track.start - 1) / 5) * 100;
+                  const widthPct = ((track.end - track.start) / 5) * 100;
+
+                  return (
+                    <div key={track.id} className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                          <span>{track.name}</span>
+                          <span className="text-[10px] text-slate-400">➔ {track.reg}</span>
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.2 rounded-full ${
+                          isAlive
+                            ? 'bg-emerald-500/20 text-emerald-400 animate-pulse'
+                            : isDead
+                            ? 'text-slate-500 line-through'
+                            : 'text-slate-500'
+                        }`}>
+                          {isAlive ? 'ACTIVE IN REGISTER' : isDead ? 'DEAD (POCKET FREED)' : 'NOT YET BORN'}
+                        </span>
+                      </div>
+
+                      <div className="h-5 w-full rounded-lg bg-slate-800/40 relative overflow-hidden">
+                        <div
+                          className="absolute top-0 bottom-0 rounded-lg transition-all duration-300 flex items-center px-2 text-[10px] font-bold text-white shadow-sm"
+                          style={{
+                            left: `${leftPct}%`,
+                            width: `${Math.max(12, widthPct)}%`,
+                            backgroundColor: track.color,
+                            opacity: isAlive ? 1 : 0.35,
+                            boxShadow: isAlive ? `0 0 12px ${track.color}` : 'none',
+                          }}
+                        >
+                          <span className="truncate">{track.name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Instruction Line Selector Tabs */}

@@ -149,3 +149,153 @@
   animation: shimmerGlow 2.5s infinite;
 }
 
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverseSlow {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes quantumLock {
+  0% {
+    transform: scale(0.85);
+    filter: brightness(1.8) drop-shadow(0 0 20px rgba(6, 182, 212, 0.9));
+  }
+  50% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes radarWave {
+  0% {
+    r: 22px;
+    opacity: 0.9;
+    stroke-width: 3px;
+  }
+  100% {
+    r: 65px;
+    opacity: 0;
+    stroke-width: 1px;
+  }
+}
+
+@keyframes spillDrop {
+  0% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(12px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(24px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes dataFlow {
+  0% {
+    stroke-dashoffset: 40;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px -2px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px 4px rgba(139, 92, 246, 0.6);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spinReverseSlow 14s linear infinite;
+}
+
+.animate-quantum-lock {
+  animation: quantumLock 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-radar-wave {
+  animation: radarWave 1.6s ease-out infinite;
+}
+
+.animate-spill-drop {
+  animation: spillDrop 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-data-flow {
+  animation: dataFlow 1s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* Glassmorphism instrument surface */
+.glass-panel {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Sci-fi HUD line accents */
+.hud-corner-tl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid rgba(6, 182, 212, 0.8);
+  border-left: 2px solid rgba(6, 182, 212, 0.8);
+}
+.hud-corner-tr {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid rgba(6, 182, 212, 0.8);
+  border-right: 2px solid rgba(6, 182, 212, 0.8);
+}
+.hud-corner-bl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid rgba(6, 182, 212, 0.8);
+  border-left: 2px solid rgba(6, 182, 212, 0.8);
+}
+.hud-corner-br {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid rgba(6, 182, 212, 0.8);
+  border-right: 2px solid rgba(6, 182, 212, 0.8);
+}
+

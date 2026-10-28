@@ -5,9 +5,13 @@ import {
   GitBranch,
   Cpu,
   Play,
+  Pause,
   RotateCcw,
   ArrowRight,
   Layers,
+  Sparkles,
+  CheckCircle2,
+  Terminal,
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
@@ -22,6 +26,8 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
 }) => {
   const [activeStage, setActiveStage] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [selectedVar, setSelectedVar] = useState<string | null>('health');
+  const [livenessLine, setLivenessLine] = useState<number>(3);
 
   const stages = [
     {
@@ -63,6 +69,74 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
       summary: 'Color vertices so adjacent nodes have different physical pockets.',
       description:
         'Vertex coloring maps every variable to a physical CPU pocket (R1, R2, R3). Compatible variables share slots; conflicting variables get distinct colors.',
+    },
+  ];
+
+  const pipelineVariables = [
+    {
+      id: 'health',
+      name: 'health',
+      friendlyName: 'Health',
+      icon: '❤️',
+      start: 1,
+      end: 5,
+      reg: 'R1',
+      color: '#06B6D4',
+      defLine: 1,
+      lastUse: 5,
+      desc: 'Player vitality spawned at Line 1, kept alive until final speed calc at Line 5.',
+    },
+    {
+      id: 'coins',
+      name: 'coins',
+      friendlyName: 'Coins',
+      icon: '🪙',
+      start: 2,
+      end: 3,
+      reg: 'R2',
+      color: '#8B5CF6',
+      defLine: 2,
+      lastUse: 3,
+      desc: 'Collected at Line 2, converted to score at Line 3. Dead after Line 3!',
+    },
+    {
+      id: 'score',
+      name: 'score',
+      friendlyName: 'Score',
+      icon: '🎯',
+      start: 3,
+      end: 4,
+      reg: 'R3',
+      color: '#10B981',
+      defLine: 3,
+      lastUse: 4,
+      desc: 'Calculated at Line 3 from health + coins. Dead after Line 4!',
+    },
+    {
+      id: 'shield',
+      name: 'shield',
+      friendlyName: 'Shield',
+      icon: '🛡️',
+      start: 4,
+      end: 6,
+      reg: 'R2',
+      color: '#8B5CF6',
+      defLine: 4,
+      lastUse: 6,
+      desc: 'Shield created at Line 4. Reuses R2 since coins is already dead!',
+    },
+    {
+      id: 'speed',
+      name: 'speed',
+      friendlyName: 'Speed',
+      icon: '⚡',
+      start: 5,
+      end: 6,
+      reg: 'R3',
+      color: '#10B981',
+      defLine: 5,
+      lastUse: 6,
+      desc: 'Speed created at Line 5. Reuses R3 since score is already dead!',
     },
   ];
 
@@ -154,11 +228,12 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
                 sounds.playPop();
                 setIsRunning(!isRunning);
               }}
-              className={`px-5 py-3 rounded-2xl text-sm font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 ${
+              className={`px-5 py-3 rounded-2xl text-sm font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 ${
                 isDark ? 'bg-slate-800 text-white border-slate-700 hover:bg-slate-700' : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-100'
               }`}
             >
-              {isRunning ? 'Pause' : 'Auto Play'}
+              {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+              <span>{isRunning ? 'Pause' : 'Auto Play'}</span>
             </button>
 
             <button
@@ -193,74 +268,83 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
           </div>
         </div>
 
-        {/* 4 Pipeline Stages Navigation Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stages.map((stage, idx) => {
-            const Icon = stage.icon;
-            const isActive = activeStage === idx;
-            const isCompleted = activeStage > idx;
+        {/* 4 Pipeline Stages Navigation Bar with Interconnect Stream */}
+        <div className="relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+            {stages.map((stage, idx) => {
+              const Icon = stage.icon;
+              const isActive = activeStage === idx;
+              const isCompleted = activeStage > idx;
 
-            return (
-              <button
-                key={stage.id}
-                onClick={() => {
-                  sounds.playPop();
-                  setIsRunning(false);
-                  setActiveStage(idx);
-                }}
-                className={`p-6 rounded-3xl border-2 text-left transition-all duration-300 relative cursor-pointer ${
-                  isActive
-                    ? isDark
-                      ? 'bg-slate-800 border-2 shadow-2xl scale-[1.03]'
-                      : 'bg-white border-2 shadow-2xl scale-[1.03]'
-                    : isCompleted
-                    ? isDark
-                      ? 'bg-slate-900/80 border-emerald-500/40 opacity-90'
-                      : 'bg-slate-50 border-emerald-500/40 opacity-90'
-                    : isDark
-                    ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100'
-                    : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
-                }`}
-                style={{
-                  borderColor: isActive ? stage.color : undefined,
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md"
-                    style={{
-                      backgroundColor: `${stage.color}20`,
-                      color: stage.color,
-                      border: `1.5px solid ${stage.color}50`,
-                    }}
-                  >
-                    <Icon className="w-6 h-6" />
+              return (
+                <button
+                  key={stage.id}
+                  onClick={() => {
+                    sounds.playPop();
+                    setIsRunning(false);
+                    setActiveStage(idx);
+                  }}
+                  className={`p-6 rounded-3xl border-2 text-left transition-all duration-300 relative cursor-pointer group ${
+                    isActive
+                      ? isDark
+                        ? 'bg-slate-800/95 border-2 shadow-2xl scale-[1.03] ring-2 ring-cyan-400/30'
+                        : 'bg-white border-2 shadow-2xl scale-[1.03] ring-2 ring-cyan-500/20'
+                      : isCompleted
+                      ? isDark
+                        ? 'bg-slate-900/80 border-emerald-500/40 opacity-90'
+                        : 'bg-slate-50 border-emerald-500/40 opacity-90'
+                      : isDark
+                      ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-700'
+                      : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300'
+                  }`}
+                  style={{
+                    borderColor: isActive ? stage.color : undefined,
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md transition-transform group-hover:scale-105"
+                      style={{
+                        backgroundColor: `${stage.color}20`,
+                        color: stage.color,
+                        border: `1.5px solid ${stage.color}50`,
+                      }}
+                    >
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-black/40 text-white">
+                      {stage.badge}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-black/30 text-white">
-                    {stage.badge}
-                  </span>
-                </div>
 
-                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{stage.title}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
-                  {stage.summary}
-                </p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+                    <span>{stage.title}</span>
+                    {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                    {stage.summary}
+                  </p>
 
-                {isActive && (
-                  <div
-                    className="absolute bottom-0 left-6 right-6 h-1 rounded-t-full"
-                    style={{ backgroundColor: stage.color }}
-                  />
-                )}
-              </button>
-            );
-          })}
+                  {isActive && (
+                    <div
+                      className="absolute bottom-0 left-6 right-6 h-1 rounded-t-full shadow-lg"
+                      style={{ backgroundColor: stage.color }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Stage Content Detail View */}
         <div className={`p-6 sm:p-8 rounded-3xl border-2 shadow-2xl relative overflow-hidden ${
           isDark ? 'bg-[#121829] border-slate-700/80' : 'bg-white border-slate-200'
         }`}>
+          <div className="hud-corner-tl opacity-75" />
+          <div className="hud-corner-tr opacity-75" />
+          <div className="hud-corner-bl opacity-75" />
+          <div className="hud-corner-br opacity-75" />
           
           <div className="max-w-3xl mb-8">
             <span
@@ -283,36 +367,89 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
             isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'
           }`}>
             
-            {/* STAGE 1: Source Code */}
+            {/* STAGE 1: Interactive Source Code & AST Lexing */}
             {activeStage === 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <div className="text-xs font-mono text-slate-400 mb-2 uppercase font-bold">
-                    High-Level Game Code (5 Variables)
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-400 uppercase font-bold">
+                    <span>Source Program (Click any variable to inspect)</span>
+                    <span className="text-cyan-400">5 Symbolic Identifiers</span>
                   </div>
-                  <div className={`p-4 rounded-xl border font-mono text-xs sm:text-sm space-y-2 ${
+                  <div className={`p-5 rounded-2xl border font-mono text-xs sm:text-sm space-y-2.5 shadow-inner ${
                     isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
                   }`}>
-                    <div><span className="text-slate-400">1:</span> health = 100; <span className="text-slate-400">// Health created</span></div>
-                    <div><span className="text-slate-400">2:</span> coins = 50; <span className="text-slate-400">// Coins collected</span></div>
-                    <div><span className="text-slate-400">3:</span> score = health + coins; <span className="text-slate-400">// Coins dead!</span></div>
-                    <div><span className="text-slate-400">4:</span> shield = score * 2; <span className="text-slate-400">// Score dead!</span></div>
-                    <div><span className="text-slate-400">5:</span> speed = health + 10; <span className="text-slate-400">// Health dead!</span></div>
-                    <div><span className="text-slate-400">6:</span> return shield + speed;</div>
+                    {[
+                      { line: 1, v: 'health', code: 'health = 100;', comment: '// Player health initialized' },
+                      { line: 2, v: 'coins', code: 'coins = 50;', comment: '// Coins collected in level' },
+                      { line: 3, v: 'score', code: 'score = health + coins;', comment: '// coins read for last time (Dead!)' },
+                      { line: 4, v: 'shield', code: 'shield = score * 2;', comment: '// score read for last time (Dead!)' },
+                      { line: 5, v: 'speed', code: 'speed = health + 10;', comment: '// health read for last time (Dead!)' },
+                      { line: 6, v: null, code: 'return shield + speed;', comment: '// Final game state rendered' },
+                    ].map((row) => (
+                      <div
+                        key={row.line}
+                        onClick={() => {
+                          if (row.v) {
+                            sounds.playPop();
+                            setSelectedVar(row.v);
+                          }
+                        }}
+                        className={`p-1.5 rounded-lg transition-colors flex items-center justify-between cursor-pointer ${
+                          row.v && selectedVar === row.v
+                            ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
+                            : 'hover:bg-slate-800/40'
+                        }`}
+                      >
+                        <div>
+                          <span className="text-slate-500 mr-3">{row.line}:</span>
+                          <span>{row.code}</span>
+                        </div>
+                        <span className="text-slate-500 text-xs hidden sm:inline">{row.comment}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white">Why Human Code Looks Like This:</h4>
-                  <p>
-                    Programmers create as many named variables as needed to make logic clear and readable.
+                <div className="lg:col-span-5 space-y-4 text-sm text-slate-600 dark:text-slate-300">
+                  <div className={`p-5 rounded-2xl border ${
+                    isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-400 mb-2 uppercase">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Symbolic Variable Inspector</span>
+                    </div>
+                    {selectedVar ? (
+                      (() => {
+                        const v = pipelineVariables.find((pv) => pv.id === selectedVar);
+                        if (!v) return null;
+                        return (
+                          <div className="space-y-2 font-mono text-xs">
+                            <div className="flex items-center justify-between text-base font-bold text-slate-900 dark:text-white">
+                              <span>{v.icon} {v.friendlyName} (`{v.name}`)</span>
+                              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-black" style={{ backgroundColor: `${v.color}25`, color: v.color }}>
+                                Assigned: {v.reg}
+                              </span>
+                            </div>
+                            <div className="text-slate-400">Created: Line {v.defLine} • Last Read: Line {v.lastUse}</div>
+                            <p className="text-slate-300 text-xs leading-relaxed font-sans">{v.desc}</p>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p className="text-xs text-slate-400 font-sans">Click any line of code to inspect its variable scope.</p>
+                    )}
+                  </div>
+
+                  <p className="text-xs sm:text-sm">
+                    Compilers cannot store every named variable into an infinite pool. The CPU only provides a fixed register file ($k=3$), requiring an automatic mapping.
                   </p>
-                  <p>
-                    However, CPU hardware does not know what "health" or "coins" is! The computer must map all 5 variables into tiny machine pockets.
-                  </p>
+
                   <button
-                    onClick={() => setActiveStage(1)}
-                    className="inline-flex items-center gap-2 text-xs font-mono text-cyan-500 font-bold hover:underline cursor-pointer"
+                    onClick={() => {
+                      sounds.playPop();
+                      setActiveStage(1);
+                    }}
+                    className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 font-black hover:underline cursor-pointer"
                   >
                     <span>Proceed to Step 2: Who Lives When?</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -321,48 +458,103 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
               </div>
             )}
 
-            {/* STAGE 2: Liveness Analysis */}
+            {/* STAGE 2: Interactive Liveness Timeline & Gantt Analysis */}
             {activeStage === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <div className="text-xs font-mono text-slate-400 mb-2 uppercase font-bold">
-                    Variable Lifetimes (Lines 1 to 6)
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-400 uppercase font-bold">
+                    <span>Liveness Intervals (Lines 1 to 6)</span>
+                    <span className="text-purple-400">Interactive Line Cursor: Line {livenessLine}</span>
                   </div>
-                  <div className="space-y-2 font-mono text-xs">
-                    <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex justify-between items-center">
-                      <span className="font-bold text-cyan-500">❤️ Health:</span>
-                      <span className="text-slate-600 dark:text-slate-300">Live from Line 1 to 5</span>
+
+                  {/* Scrubber slider for timeline line */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono text-slate-400">Line:</span>
+                    <div className="grid grid-cols-6 gap-1.5 flex-1">
+                      {[1, 2, 3, 4, 5, 6].map((l) => (
+                        <button
+                          key={l}
+                          onClick={() => {
+                            sounds.playPop();
+                            setLivenessLine(l);
+                          }}
+                          className={`py-1 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                            livenessLine === l
+                              ? 'bg-purple-500 text-white shadow-md'
+                              : 'bg-slate-800 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          L{l}
+                        </button>
+                      ))}
                     </div>
-                    <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 flex justify-between items-center">
-                      <span className="font-bold text-purple-500">🪙 Coins:</span>
-                      <span className="text-slate-600 dark:text-slate-300">Live from Line 2 to 3 (Short-lived)</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex justify-between items-center">
-                      <span className="font-bold text-emerald-500">🎯 Score:</span>
-                      <span className="text-slate-600 dark:text-slate-300">Live from Line 3 to 4 (Short-lived)</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex justify-between items-center">
-                      <span className="font-bold text-amber-500">🛡️ Shield:</span>
-                      <span className="text-slate-600 dark:text-slate-300">Live from Line 4 to 6</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-pink-500/10 border border-pink-500/30 flex justify-between items-center">
-                      <span className="font-bold text-pink-500">⚡ Speed:</span>
-                      <span className="text-slate-600 dark:text-slate-300">Live from Line 5 to 6</span>
-                    </div>
+                  </div>
+
+                  {/* Visual Gantt Bar Matrix */}
+                  <div className={`p-4 rounded-2xl border space-y-3 font-mono text-xs ${
+                    isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    {pipelineVariables.map((v) => {
+                      const isAliveAtLine = livenessLine >= v.start && livenessLine <= v.end;
+                      const leftPercent = ((v.start - 1) / 5) * 100;
+                      const widthPercent = ((v.end - v.start) / 5) * 100;
+
+                      return (
+                        <div key={v.id} className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-bold flex items-center gap-1.5">
+                              <span>{v.icon}</span>
+                              <span className="text-slate-900 dark:text-white">{v.friendlyName}</span>
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              isAliveAtLine
+                                ? 'bg-emerald-500/20 text-emerald-400 animate-pulse'
+                                : 'text-slate-500'
+                            }`}>
+                              {isAliveAtLine ? 'ALIVE NOW' : `Lines ${v.start}-${v.end}`}
+                            </span>
+                          </div>
+
+                          <div className="h-4 w-full rounded-lg bg-slate-800/60 relative overflow-hidden">
+                            <div
+                              className="absolute top-0 bottom-0 rounded-lg transition-all duration-300"
+                              style={{
+                                left: `${leftPercent}%`,
+                                width: `${Math.max(12, widthPercent)}%`,
+                                backgroundColor: v.color,
+                                opacity: isAliveAtLine ? 1 : 0.45,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white">The Big Discovery:</h4>
-                  <p>
-                    By tracking when each variable starts and stops, the computer discovers which variables <strong>never meet in time</strong>!
-                  </p>
-                  <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-700 dark:text-emerald-300 font-medium">
-                    <span className="font-bold">Key Insight:</span> Notice that <strong className="text-emerald-500">Coins</strong> dies at line 3, and <strong className="text-emerald-500">Shield</strong> is not born until line 4! They NEVER clash in time!
+                <div className="lg:col-span-5 space-y-4 text-sm text-slate-600 dark:text-slate-300">
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">Liveness Discovery at Line {livenessLine}:</h4>
+                  <div className={`p-4 rounded-xl border text-xs leading-relaxed ${
+                    isDark ? 'bg-purple-500/10 border-purple-500/30 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-900'
+                  }`}>
+                    <span className="font-bold">Active Variables at Line {livenessLine}: </span>
+                    {pipelineVariables
+                      .filter((v) => livenessLine >= v.start && livenessLine <= v.end)
+                      .map((v) => `${v.friendlyName} (${v.name})`)
+                      .join(', ')}
                   </div>
+
+                  <p className="text-xs leading-relaxed">
+                    Notice that <strong className="text-purple-400">Coins</strong> dies at Line 3, and <strong className="text-purple-400">Shield</strong> is only born at Line 4.
+                    Because their active intervals never overlap, they can safely share <strong>Register R2</strong>!
+                  </p>
+
                   <button
-                    onClick={() => setActiveStage(2)}
-                    className="inline-flex items-center gap-2 text-xs font-mono text-purple-500 font-bold hover:underline cursor-pointer"
+                    onClick={() => {
+                      sounds.playPop();
+                      setActiveStage(2);
+                    }}
+                    className="inline-flex items-center gap-2 text-xs font-mono text-purple-400 font-black hover:underline cursor-pointer"
                   >
                     <span>Proceed to Step 3: Draw The Clash Map</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -371,48 +563,78 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
               </div>
             )}
 
-            {/* STAGE 3: Interference Graph */}
+            {/* STAGE 3: Interference Graph with Collision Lasers */}
             {activeStage === 2 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div className={`h-64 flex items-center justify-center rounded-2xl border p-4 ${
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className={`lg:col-span-7 h-72 rounded-2xl border p-4 relative select-none flex items-center justify-center ${
                   isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-300'
                 }`}>
-                  <svg viewBox="0 0 300 240" className="w-full h-full">
-                    {/* Edges */}
-                    <line x1="150" y1="50" x2="70" y2="120" stroke="#F59E0B" strokeWidth="2.5" />
-                    <line x1="150" y1="50" x2="90" y2="190" stroke="#F59E0B" strokeWidth="2.5" />
-                    <line x1="150" y1="50" x2="210" y2="190" stroke="#F59E0B" strokeWidth="2.5" />
-                    <line x1="210" y1="190" x2="230" y2="120" stroke="#F59E0B" strokeWidth="2.5" />
+                  <svg viewBox="0 0 320 260" className="w-full h-full">
+                    {/* Laser Clash Lines */}
+                    {[
+                      { u: { x: 160, y: 40 }, v: { x: 60, y: 110 } }, // health - coins
+                      { u: { x: 60, y: 110 }, v: { x: 90, y: 200 } }, // coins - score
+                      { u: { x: 160, y: 40 }, v: { x: 90, y: 200 } }, // health - score
+                      { u: { x: 160, y: 40 }, v: { x: 230, y: 200 } }, // health - shield
+                      { u: { x: 90, y: 200 }, v: { x: 230, y: 200 } }, // score - shield
+                      { u: { x: 230, y: 200 }, v: { x: 260, y: 110 } }, // shield - speed
+                    ].map((edge, idx) => (
+                      <line
+                        key={idx}
+                        x1={edge.u.x}
+                        y1={edge.u.y}
+                        x2={edge.v.x}
+                        y2={edge.v.y}
+                        stroke="#F59E0B"
+                        strokeWidth="3"
+                        strokeDasharray="6 3"
+                        className="animate-laser-dash"
+                      />
+                    ))}
 
                     {/* Nodes */}
                     {[
-                      { id: 'health', icon: '❤️', x: 150, y: 50 },
-                      { id: 'coins', icon: '🪙', x: 70, y: 120 },
-                      { id: 'score', icon: '🎯', x: 90, y: 190 },
-                      { id: 'shield', icon: '🛡️', x: 210, y: 190 },
-                      { id: 'speed', icon: '⚡', x: 230, y: 120 },
+                      { id: 'health', name: 'Health', icon: '❤️', x: 160, y: 40, deg: 3 },
+                      { id: 'coins', name: 'Coins', icon: '🪙', x: 60, y: 110, deg: 2 },
+                      { id: 'score', name: 'Score', icon: '🎯', x: 90, y: 200, deg: 3 },
+                      { id: 'shield', name: 'Shield', icon: '🛡️', x: 230, y: 200, deg: 3 },
+                      { id: 'speed', name: 'Speed', icon: '⚡', x: 260, y: 110, deg: 1 },
                     ].map((n) => (
-                      <g key={n.id}>
-                        <circle cx={n.x} cy={n.y} r="20" fill={isDark ? '#1E293B' : '#E2E8F0'} stroke="#F59E0B" strokeWidth="2" />
-                        <text x={n.x} y={n.y + 6} textAnchor="middle" fontSize="14">
+                      <g key={n.id} className="cursor-pointer">
+                        <circle cx={n.x} cy={n.y} r="22" fill={isDark ? '#1E293B' : '#E2E8F0'} stroke="#F59E0B" strokeWidth="2.5" />
+                        <text x={n.x} y={n.y + 7} textAnchor="middle" fontSize="16">
                           {n.icon}
+                        </text>
+                        <text x={n.x} y={n.y + 36} textAnchor="middle" fontSize="10" fontWeight="bold" fill={isDark ? '#F1F5F9' : '#0F172A'}>
+                          {n.name} (d={n.deg})
                         </text>
                       </g>
                     ))}
                   </svg>
                 </div>
 
-                <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white">Connecting the Enemies:</h4>
+                <div className="lg:col-span-5 space-y-4 text-sm text-slate-600 dark:text-slate-300">
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">The Interference Topology:</h4>
                   <p>
-                    Every variable becomes a circle. Whenever two variables are active at the same time, we draw an <strong>enemy clash line</strong> between them.
+                    Every variable becomes a vertex. An edge is placed between any two variables whose live ranges overlap.
                   </p>
-                  <p>
-                    Notice there is <strong className="text-emerald-500">NO LINE</strong> between Coins and Shield! That means they are safe to share the same pocket!
-                  </p>
+                  <div className={`p-4 rounded-xl border text-xs font-mono space-y-1.5 ${
+                    isDark ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-950'
+                  }`}>
+                    <div className="font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Missing Edge = Opportunity for Reuse!</span>
+                    </div>
+                    <div>Notice that <strong>Coins (🪙)</strong> has NO edge to <strong>Shield (🛡️)</strong>!</div>
+                    <div>And <strong>Score (🎯)</strong> has NO edge to <strong>Speed (⚡)</strong>!</div>
+                  </div>
+
                   <button
-                    onClick={() => setActiveStage(3)}
-                    className="inline-flex items-center gap-2 text-xs font-mono text-amber-500 font-bold hover:underline cursor-pointer"
+                    onClick={() => {
+                      sounds.playPop();
+                      setActiveStage(3);
+                    }}
+                    className="inline-flex items-center gap-2 text-xs font-mono text-amber-400 font-black hover:underline cursor-pointer"
                   >
                     <span>Proceed to Step 4: Color The Circles!</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -421,47 +643,60 @@ export const CompilerPipeline: React.FC<CompilerPipelineProps> = ({
               </div>
             )}
 
-            {/* STAGE 4: Register Allocation */}
+            {/* STAGE 4: Register Allocation & Assembly Code Generation */}
             {activeStage === 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4">
-                  <div className="text-xs font-mono text-slate-400 uppercase font-bold">
-                    Assigned CPU Hardware Pockets (k = 3)
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-6 space-y-3">
+                  <div className="text-xs font-mono text-slate-400 uppercase font-bold flex items-center gap-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Allocated Physical Registers (k = 3)</span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="p-4 rounded-2xl bg-cyan-500/15 border-2 border-cyan-500/40 text-center font-mono">
-                      <div className="text-xs text-cyan-500 font-bold">POCKET 1</div>
-                      <div className="text-lg font-black text-slate-900 dark:text-white mt-1">❤️ Health</div>
+                      <div className="text-xs text-cyan-400 font-bold">POCKET R1</div>
+                      <div className="text-base font-black text-slate-900 dark:text-white mt-1">❤️ Health</div>
+                      <div className="text-[10px] text-slate-400 mt-1">0.3ns Latency</div>
                     </div>
                     <div className="p-4 rounded-2xl bg-purple-500/15 border-2 border-purple-500/40 text-center font-mono">
-                      <div className="text-xs text-purple-500 font-bold">POCKET 2</div>
-                      <div className="text-base font-black text-slate-900 dark:text-white mt-1">🪙 ➔ 🛡️</div>
-                      <div className="text-[10px] text-purple-400 font-bold">Reused!</div>
+                      <div className="text-xs text-purple-400 font-bold">POCKET R2</div>
+                      <div className="text-sm font-black text-slate-900 dark:text-white mt-1">🪙 ➔ 🛡️</div>
+                      <div className="text-[10px] text-purple-300 font-bold mt-1">Reused for Shield!</div>
                     </div>
                     <div className="p-4 rounded-2xl bg-emerald-500/15 border-2 border-emerald-500/40 text-center font-mono">
-                      <div className="text-xs text-emerald-500 font-bold">POCKET 3</div>
-                      <div className="text-base font-black text-slate-900 dark:text-white mt-1">🎯 ➔ ⚡</div>
-                      <div className="text-[10px] text-emerald-400 font-bold">Reused!</div>
+                      <div className="text-xs text-emerald-400 font-bold">POCKET R3</div>
+                      <div className="text-sm font-black text-slate-900 dark:text-white mt-1">🎯 ➔ ⚡</div>
+                      <div className="text-[10px] text-emerald-300 font-bold mt-1">Reused for Speed!</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white">Mission Accomplished! 🎉</h4>
-                  <p>
-                    By solving this graph coloring puzzle, <strong>5 variables fit into only 3 physical pockets</strong> with ZERO collisions!
-                  </p>
-                  <p>
-                    Zero variables were thrown into slow RAM, giving your game 100% maximum lightning speed!
-                  </p>
-                  <div className="pt-2">
+                <div className="lg:col-span-6 space-y-3">
+                  <div className="text-xs font-mono text-slate-400 uppercase font-bold flex items-center gap-1.5">
+                    <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Emitted Machine Assembly (Zero Spill Stalls!)</span>
+                  </div>
+                  <div className={`p-4 rounded-2xl border font-mono text-xs space-y-1.5 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-800'
+                  }`}>
+                    <div><span className="text-cyan-400 font-bold">mov</span> <span className="text-cyan-300">r1</span>, 100 <span className="text-slate-500">; r1 = health</span></div>
+                    <div><span className="text-purple-400 font-bold">mov</span> <span className="text-purple-300">r2</span>, 50 <span className="text-slate-500">; r2 = coins</span></div>
+                    <div><span className="text-emerald-400 font-bold">add</span> <span className="text-emerald-300">r3</span>, r1, r2 <span className="text-slate-500">; r3 = score (coins dead!)</span></div>
+                    <div><span className="text-purple-400 font-bold">shl</span> <span className="text-purple-300">r2</span>, r3, 1 <span className="text-slate-500">; r2 = shield (reuses r2!)</span></div>
+                    <div><span className="text-emerald-400 font-bold">add</span> <span className="text-emerald-300">r3</span>, r1, 10 <span className="text-slate-500">; r3 = speed (reuses r3!)</span></div>
+                    <div><span className="text-yellow-400 font-bold">add</span> <span className="text-yellow-300">r0</span>, r2, r3 <span className="text-slate-500">; return shield + speed</span></div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
                     <button
                       onClick={handleRunFullCompilation}
-                      className="inline-flex items-center gap-2 text-xs font-mono text-emerald-500 font-bold hover:underline cursor-pointer"
+                      className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 font-black hover:underline cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Replay Compilation Pipeline</span>
                     </button>
+                    <span className="text-xs font-mono text-emerald-400 font-black">
+                      100% In-Register Execution
+                    </span>
                   </div>
                 </div>
               </div>
