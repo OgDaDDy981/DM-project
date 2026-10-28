@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Sparkles, Zap, CheckCircle2, Activity } from 'lucide-react';
+import { Play, Pause, Zap, CheckCircle2, Activity } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/soundEffects';
 
@@ -180,22 +180,23 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
             </div>
 
-            {/* CTAs with generous spacing and direct Central Idea link */}
+            {/* CTAs with generous spacing and direct Simulation link */}
             <div className="flex flex-wrap items-center gap-3.5 sm:gap-4 pt-2">
               <a
-                href="#central-idea"
-                onClick={() => sounds.playPop()}
-                className="flex items-center gap-2.5 px-6 sm:px-7 py-4 rounded-2xl font-black text-sm sm:text-base bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-              >
-                <Sparkles className="w-5 h-5 fill-current" />
-                <span>The Problem & Central Idea</span>
-              </a>
-
-              <button
+                href="#simulation"
                 onClick={() => {
-                  sounds.playPop();
+                  sounds.playLaser();
                   onExploreSimulation();
                 }}
+                className="flex items-center gap-2.5 px-6 sm:px-7 py-4 rounded-2xl font-black text-sm sm:text-base bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <Zap className="w-5 h-5 fill-current" />
+                <span>Launch Live Simulation</span>
+              </a>
+
+              <a
+                href="#challenge"
+                onClick={() => sounds.playPop()}
                 className={`flex items-center gap-2.5 px-6 py-4 rounded-2xl font-bold text-sm sm:text-base border transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 ${
                   isDark
                     ? 'bg-slate-800/90 border-slate-700 text-white hover:bg-slate-700'
@@ -203,8 +204,8 @@ export const Hero: React.FC<HeroProps> = ({
                 }`}
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>Coloring Studio</span>
-              </button>
+                <span>Play Register Arcade</span>
+              </a>
 
               <button
                 onClick={() => {

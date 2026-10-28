@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { CentralIdeaSimulation } from './components/CentralIdea/CentralIdeaSimulation';
-import { OfficeDeskAnalogy } from './components/Analogy/OfficeDeskAnalogy';
-import { SpeedGrandPrix } from './components/Race/SpeedGrandPrix';
-import { TheRegisterProblem } from './components/TheRegisterProblem';
-import { GraphSimulator } from './components/Simulator/GraphSimulator';
-import { RegisterBankView } from './components/RegisterBank/RegisterBankView';
-import { CompilerPipeline } from './components/Pipeline/CompilerPipeline';
-import { MathExplorer } from './components/MathExplorer/MathExplorer';
-import { SpillingDemo } from './components/Spilling/SpillingDemo';
+import { UnifiedCompilerSiliconSimulation } from './components/UnifiedSimulation/UnifiedCompilerSiliconSimulation';
 import { ChallengeMode } from './components/Challenge/ChallengeMode';
 import { PresentationMode } from './components/Presentation/PresentationMode';
 import { Footer } from './components/Footer';
@@ -17,9 +9,9 @@ import { sounds } from './utils/soundEffects';
 
 export const App: React.FC = () => {
   const [isPresentationOpen, setIsPresentationOpen] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<string>('hero');
+  const [activeSection, setActiveSection] = useState<string>('simulation');
   
-  // Theme state: defaults to false (Fresh, vibrant, eye-catching Daylight Pop!)
+  // Theme state: defaults to false (Fresh, vibrant daylight mode)
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('app_theme');
@@ -28,7 +20,7 @@ export const App: React.FC = () => {
     return false; // Default bright & lively!
   });
 
-  // Audience Mode: defaults to true (🧸 Story / Plain English Mode!)
+  // Audience Mode: defaults to true (🧸 Story / Plain English Mode)
   const [isStoryMode, setIsStoryMode] = useState<boolean>(true);
 
   // Sound FX State
@@ -76,7 +68,7 @@ export const App: React.FC = () => {
 
   // Scroll spy to highlight active section in navbar
   useEffect(() => {
-    const sections = ['central-idea', 'analogy', 'race', 'problem', 'simulator', 'registers', 'pipeline', 'math', 'spilling', 'challenge'];
+    const sections = ['hero', 'simulation', 'challenge'];
     const handleScroll = () => {
       const scrollPos = window.scrollY + 200;
       for (const sectionId of sections) {
@@ -96,7 +88,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleScrollToSimulator = () => {
-    const el = document.getElementById('simulator');
+    const el = document.getElementById('simulation');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -128,55 +120,13 @@ export const App: React.FC = () => {
           isStoryMode={isStoryMode}
         />
 
-        {/* 2. THE CENTRAL MISSION, PURPOSE & LIVE SIMULATION */}
-        <CentralIdeaSimulation
+        {/* 2. Unified Master Compiler & Physical Silicon Simulation Studio */}
+        <UnifiedCompilerSiliconSimulation
           isDark={isDark}
           isStoryMode={isStoryMode}
         />
 
-        {/* 3. Real-World Analogy: How 5 People Work at 3 Desks */}
-        <OfficeDeskAnalogy isDark={isDark} />
-
-        {/* 3. The Nanosecond Drag Race: CPU Register vs System RAM */}
-        <SpeedGrandPrix isDark={isDark} />
-
-        {/* 4. Why Registers are Scarce */}
-        <TheRegisterProblem
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 5. Core Interactive Graph Coloring Studio */}
-        <GraphSimulator
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 6. Physical CPU Pockets & Variable Lifetimes */}
-        <RegisterBankView
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 7. The 4-Step Journey: From Code to Silicon */}
-        <CompilerPipeline
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 8. The Mathematics: Graph Theory, Chromatic Numbers, Complexity */}
-        <MathExplorer
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 9. Disaster Room: Register Spilling to RAM */}
-        <SpillingDemo
-          isDark={isDark}
-          isStoryMode={isStoryMode}
-        />
-
-        {/* 10. The Register Allocation Game Arcade */}
+        {/* 3. The Register Allocation Game Arcade */}
         <ChallengeMode
           isDark={isDark}
           isStoryMode={isStoryMode}

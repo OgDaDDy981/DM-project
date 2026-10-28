@@ -6,11 +6,7 @@ import {
   Sun,
   Moon,
   Presentation,
-  Play,
-  Flame,
-  Users,
   Trophy,
-  Layers,
   Cpu,
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
@@ -69,75 +65,25 @@ export const Header: React.FC<HeaderProps> = ({
         </a>
 
         {/* Navigation links */}
-        <nav className="hidden xl:flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
+        <nav className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
           <a
-            href="#central-idea"
-            className={`px-3.5 py-2 rounded-xl transition-all hover:text-cyan-400 flex items-center gap-1.5 ${
-              activeSection === 'central-idea' ? 'bg-cyan-500/15 text-cyan-400 font-extrabold shadow-sm' : ''
+            href="#simulation"
+            className={`px-4 py-2 rounded-xl transition-all hover:text-cyan-400 flex items-center gap-2 ${
+              activeSection === 'simulation' ? 'bg-cyan-500/15 text-cyan-400 font-extrabold shadow-sm' : ''
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>The Central Idea</span>
-          </a>
-
-          <a
-            href="#analogy"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-cyan-500 flex items-center gap-1.5 ${
-              activeSection === 'analogy' ? 'bg-cyan-500/10 text-cyan-500 font-extrabold' : ''
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>30s Analogy</span>
-          </a>
-
-          <a
-            href="#race"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-red-500 flex items-center gap-1.5 ${
-              activeSection === 'race' ? 'bg-red-500/10 text-red-500 font-extrabold' : ''
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5" />
-            <span>Speed Race</span>
-          </a>
-
-          <a
-            href="#simulator"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-cyan-500 flex items-center gap-1.5 ${
-              activeSection === 'simulator' ? 'bg-cyan-500/10 text-cyan-500 font-extrabold' : ''
-            }`}
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Coloring Studio</span>
-          </a>
-
-          <a
-            href="#registers"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-purple-500 flex items-center gap-1.5 ${
-              activeSection === 'registers' ? 'bg-purple-500/10 text-purple-500 font-extrabold' : ''
-            }`}
-          >
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Hardware</span>
-          </a>
-
-          <a
-            href="#pipeline"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-emerald-500 flex items-center gap-1.5 ${
-              activeSection === 'pipeline' ? 'bg-emerald-500/10 text-emerald-500 font-extrabold' : ''
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>How It Works</span>
+            <Cpu className="w-4 h-4 text-cyan-400" />
+            <span>Compiler & Silicon Simulation</span>
           </a>
 
           <a
             href="#challenge"
-            className={`px-3 py-2 rounded-xl transition-all hover:text-amber-500 flex items-center gap-1.5 ${
-              activeSection === 'challenge' ? 'bg-amber-500/10 text-amber-500 font-extrabold' : ''
+            className={`px-4 py-2 rounded-xl transition-all hover:text-amber-500 flex items-center gap-2 ${
+              activeSection === 'challenge' ? 'bg-amber-500/15 text-amber-500 font-extrabold shadow-sm' : ''
             }`}
           >
-            <Trophy className="w-3.5 h-3.5" />
-            <span>Arcade Game</span>
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <span>Register Arcade</span>
           </a>
         </nav>
 
